@@ -1,14 +1,16 @@
-# Pinned. The committed model bundle is a scikit-learn 1.6.1 pickle, so the
-# versions that unpickle it must match the versions that created it.
-streamlit==1.34.0
-altair==5.3.0
-pandas==2.3.3
-numpy==1.26.4
+# Runtime deps for app.py ONLY, deliberately kept loose.
+#
+# Hard-pinning every package makes pip's resolver backtrack, and numpy==1.26.4 has no
+# wheels for Python 3.13 (it would compile from source, which is what stalls a build).
+# Ranges let the resolver pick wheels for whatever Python the host runs.
+#
+# scikit-learn stays pinned: artifacts/ensemble_deploy.joblib is a 1.6.1 pickle and the
+# version that loads it must match the version that wrote it.
+streamlit>=1.34
+altair>=5.0,<6
+pandas>=2.0,<3
+numpy>=1.26,<3
 scikit-learn==1.6.1
-xgboost==3.2.0
-lightgbm==4.7.0
-joblib==1.4.2
-
-# only needed to re-run the pipeline in src/, not by the app itself
-pyarrow==22.0.0
-huggingface_hub==1.4.1
+xgboost>=2.0,<4
+lightgbm>=4.0,<5
+joblib>=1.3

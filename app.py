@@ -56,7 +56,16 @@ def load_model():
     for stem in ("ensemble_deploy", "ensemble_full"):
         p = os.path.join(ART, f"{stem}.joblib")
         if os.path.exists(p):
-            b = joblib.load(p)
+            try:
+                b = joblib.load(p)
+            except Exception as exc:          # usually a scikit-learn version mismatch
+                import sklearn
+                st.error(
+                    f"Could not load `{stem}.joblib`: {type(exc).__name__}: {exc}\n\n"
+                    f"This bundle was written by scikit-learn 1.6.1; this environment has "
+                    f"{sklearn.__version__}. Pin `scikit-learn==1.6.1` in requirements.txt "
+                    f"or rebuild the bundle with `src/train.py --save --compact`.")
+                st.stop()
             b["_stem"] = stem
             return b
     return None
