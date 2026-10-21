@@ -1,0 +1,264 @@
+[
+ {
+  "feature_set": "envonly",
+  "features": [
+   "avg_rad",
+   "NDVI",
+   "LandCover_Class",
+   "elevation_meters",
+   "Carbon_Mass",
+   "Dust_Mass",
+   "SO2_Mass",
+   "Sulfate_Mass",
+   "Sea_Salt_Mass",
+   "Total_Aerosol_Extinction",
+   "temp_mean",
+   "rainfall",
+   "wind_mean",
+   "humid_mean",
+   "shortwave_radiation",
+   "lka_general_2020",
+   "year",
+   "month",
+   "doy",
+   "sin_doy",
+   "cos_doy",
+   "individualCount"
+  ],
+  "protocol": "random",
+  "n_train": 225000,
+  "n_test": 75000,
+  "classes": [
+   "Ampara",
+   "Anuradhapura",
+   "Badulla",
+   "Batticaloa",
+   "Colombo",
+   "Galle",
+   "Gampaha",
+   "Hambantota",
+   "Jaffna",
+   "Kalutara",
+   "Kandy",
+   "Kegalla",
+   "Kilinochchi",
+   "Kurunegala",
+   "Mannar",
+   "Matale",
+   "Matara",
+   "Monaragala",
+   "Mullaittivu",
+   "Nuwara",
+   "Polonnaruwa",
+   "Puttalam",
+   "Ratnapura",
+   "Trincomalee",
+   "Vavuniya"
+  ],
+  "results": {
+   "RandomForest": {
+    "accuracy": 0.9884133333333334,
+    "balanced_accuracy": 0.9668076527492068,
+    "macro_f1": 0.9768259248715804,
+    "weighted_f1": 0.9883698253646268,
+    "log_loss": 0.12011903863794808,
+    "fit_seconds": 6.5
+   },
+   "ExtraTrees": {
+    "accuracy": 0.9781066666666667,
+    "balanced_accuracy": 0.9539772903759318,
+    "macro_f1": 0.9653824611737908,
+    "weighted_f1": 0.9779944136545619,
+    "log_loss": 0.1931597464565651,
+    "fit_seconds": 3.6
+   },
+   "HistGradientBoosting": {
+    "accuracy": 0.9963733333333333,
+    "balanced_accuracy": 0.9911347181544159,
+    "macro_f1": 0.9930525594155993,
+    "weighted_f1": 0.9963718052626277,
+    "log_loss": 0.014541573130783327,
+    "fit_seconds": 165.8
+   },
+   "XGBoost": {
+    "accuracy": 0.9971733333333334,
+    "balanced_accuracy": 0.9912624646971517,
+    "macro_f1": 0.9928773154808397,
+    "weighted_f1": 0.997170484371188,
+    "log_loss": 0.010445716146231559,
+    "fit_seconds": 57.6
+   },
+   "LightGBM": {
+    "accuracy": 0.9958,
+    "balanced_accuracy": 0.9885882337248078,
+    "macro_f1": 0.9899221819129632,
+    "weighted_f1": 0.9957977580698247,
+    "log_loss": 0.02163262943265287,
+    "fit_seconds": 36.8
+   },
+   "LogisticRegression": {
+    "accuracy": 0.6738666666666666,
+    "balanced_accuracy": 0.5691528572853595,
+    "macro_f1": 0.5855367435951759,
+    "weighted_f1": 0.6579815663365653,
+    "log_loss": 0.9408214976152225,
+    "fit_seconds": 29.5
+   },
+   "SoftVote": {
+    "accuracy": 0.9966666666666667,
+    "balanced_accuracy": 0.9896045754442264,
+    "macro_f1": 0.9922769924776016,
+    "weighted_f1": 0.9966632184846346,
+    "log_loss": 0.11559395766222184
+   },
+   "Stacking": {
+    "accuracy": 0.9971066666666667,
+    "balanced_accuracy": 0.9931580254588055,
+    "macro_f1": 0.9941982587943876,
+    "weighted_f1": 0.9971056420233219,
+    "log_loss": 0.01396942829931345,
+    "fit_seconds": 483.4
+   }
+  },
+  "vote_weights": {
+   "RandomForest": 0.1756,
+   "ExtraTrees": 0.1737,
+   "HistGradientBoosting": 0.177,
+   "XGBoost": 0.1771,
+   "LightGBM": 0.1769,
+   "LogisticRegression": 0.1197
+  },
+  "best_ensemble": "Stacking"
+ },
+ {
+  "feature_set": "envonly",
+  "features": [
+   "avg_rad",
+   "NDVI",
+   "LandCover_Class",
+   "elevation_meters",
+   "Carbon_Mass",
+   "Dust_Mass",
+   "SO2_Mass",
+   "Sulfate_Mass",
+   "Sea_Salt_Mass",
+   "Total_Aerosol_Extinction",
+   "temp_mean",
+   "rainfall",
+   "wind_mean",
+   "humid_mean",
+   "shortwave_radiation",
+   "lka_general_2020",
+   "year",
+   "month",
+   "doy",
+   "sin_doy",
+   "cos_doy",
+   "individualCount"
+  ],
+  "protocol": "grouped",
+  "n_train": 227549,
+  "n_test": 72451,
+  "classes": [
+   "Ampara",
+   "Anuradhapura",
+   "Badulla",
+   "Batticaloa",
+   "Colombo",
+   "Galle",
+   "Gampaha",
+   "Hambantota",
+   "Jaffna",
+   "Kalutara",
+   "Kandy",
+   "Kegalla",
+   "Kilinochchi",
+   "Kurunegala",
+   "Mannar",
+   "Matale",
+   "Matara",
+   "Monaragala",
+   "Mullaittivu",
+   "Nuwara",
+   "Polonnaruwa",
+   "Puttalam",
+   "Ratnapura",
+   "Trincomalee",
+   "Vavuniya"
+  ],
+  "results": {
+   "RandomForest": {
+    "accuracy": 0.8580005797021435,
+    "balanced_accuracy": 0.7669688075830883,
+    "macro_f1": 0.7885063329360485,
+    "weighted_f1": 0.8584054324153739,
+    "log_loss": 0.5661036251447884,
+    "fit_seconds": 5.2
+   },
+   "ExtraTrees": {
+    "accuracy": 0.7817835502615561,
+    "balanced_accuracy": 0.7500286744034635,
+    "macro_f1": 0.7578587963020967,
+    "weighted_f1": 0.7815239395506806,
+    "log_loss": 0.6866663304848396,
+    "fit_seconds": 2.9
+   },
+   "HistGradientBoosting": {
+    "accuracy": 0.8974617327573119,
+    "balanced_accuracy": 0.8521913102953875,
+    "macro_f1": 0.8615738106510387,
+    "weighted_f1": 0.8975951223644527,
+    "log_loss": 0.29654501773111264,
+    "fit_seconds": 85.7
+   },
+   "XGBoost": {
+    "accuracy": 0.898510717588439,
+    "balanced_accuracy": 0.8475896291078766,
+    "macro_f1": 0.8518123010501474,
+    "weighted_f1": 0.8986908951541694,
+    "log_loss": 0.3364520439456984,
+    "fit_seconds": 57.6
+   },
+   "LightGBM": {
+    "accuracy": 0.9008295261625099,
+    "balanced_accuracy": 0.8556183762120227,
+    "macro_f1": 0.8617452660322786,
+    "weighted_f1": 0.901204833226817,
+    "log_loss": 0.27481062080145746,
+    "fit_seconds": 35.6
+   },
+   "LogisticRegression": {
+    "accuracy": 0.5448095954507184,
+    "balanced_accuracy": 0.4582583878571514,
+    "macro_f1": 0.43918978598166786,
+    "weighted_f1": 0.5112031262251244,
+    "log_loss": 1.2676813648947414,
+    "fit_seconds": 26.0
+   },
+   "SoftVote": {
+    "accuracy": 0.9032311493285117,
+    "balanced_accuracy": 0.8576135974439141,
+    "macro_f1": 0.8683274320332484,
+    "weighted_f1": 0.9034924046378648,
+    "log_loss": 0.38426156637293596
+   },
+   "Stacking": {
+    "accuracy": 0.9028446812328332,
+    "balanced_accuracy": 0.8636835597211722,
+    "macro_f1": 0.8739907829222624,
+    "weighted_f1": 0.9029741869619836,
+    "log_loss": 0.39453744598348084,
+    "fit_seconds": 723.6
+   }
+  },
+  "vote_weights": {
+   "RandomForest": 0.1758,
+   "ExtraTrees": 0.1602,
+   "HistGradientBoosting": 0.1839,
+   "XGBoost": 0.1841,
+   "LightGBM": 0.1845,
+   "LogisticRegression": 0.1116
+  },
+  "best_ensemble": "SoftVote"
+ }
+]

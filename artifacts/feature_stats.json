@@ -1,0 +1,308 @@
+{
+ "stats": {
+  "decimalLatitude": {
+   "min": 5.925623893737793,
+   "max": 9.831823348999023,
+   "median": 6.884068012237549,
+   "mean": 6.966506004333496,
+   "q01": 5.9639668464660645,
+   "q99": 9.638668060302734,
+   "label": "Latitude (\u00b0N)",
+   "n_unique": 19164
+  },
+  "decimalLongitude": {
+   "min": 79.6525650024414,
+   "max": 81.86444854736328,
+   "median": 80.3991928100586,
+   "mean": 80.38790130615234,
+   "q01": 79.81189727783203,
+   "q99": 81.42484283447266,
+   "label": "Longitude (\u00b0E)",
+   "n_unique": 17875
+  },
+  "avg_rad": {
+   "min": -0.2968597114086151,
+   "max": 116.58999633789062,
+   "median": 1.0700000524520874,
+   "mean": 3.997026205062866,
+   "q01": 0.028464870527386665,
+   "q99": 29.489999771118164,
+   "label": "Night-time radiance",
+   "n_unique": 5590
+  },
+  "NDVI": {
+   "min": -0.19089999794960022,
+   "max": 0.9980000257492065,
+   "median": 0.6912000179290771,
+   "mean": 0.6619245409965515,
+   "q01": 0.13099999725818634,
+   "q99": 0.9065999984741211,
+   "label": "NDVI (vegetation index)",
+   "n_unique": 6827
+  },
+  "LandCover_Class": {
+   "min": 2.0,
+   "max": 17.0,
+   "median": 10.0,
+   "mean": 10.15827465057373,
+   "q01": 2.0,
+   "q99": 17.0,
+   "label": "Land-cover class",
+   "n_unique": 11
+  },
+  "elevation_meters": {
+   "min": -10.0,
+   "max": 2519.0,
+   "median": 16.0,
+   "mean": 183.7975311279297,
+   "q01": 0.0,
+   "q99": 1978.0,
+   "label": "Elevation (m)",
+   "n_unique": 1687
+  },
+  "Carbon_Mass": {
+   "min": 1.40914696578065e-10,
+   "max": 1.4686667437757706e-09,
+   "median": 5.569867900234726e-10,
+   "mean": 5.63308344414537e-10,
+   "q01": 1.903647933731989e-10,
+   "q99": 1.125856963213323e-09,
+   "label": "Carbon aerosol mass",
+   "n_unique": 2370
+  },
+  "Dust_Mass": {
+   "min": 4.310725942868743e-10,
+   "max": 4.7568828875910185e-08,
+   "median": 5.773440392431439e-09,
+   "mean": 7.756789877078063e-09,
+   "q01": 4.952324661466889e-10,
+   "q99": 2.906263851798485e-08,
+   "label": "Dust aerosol mass",
+   "n_unique": 2370
+  },
+  "SO2_Mass": {
+   "min": 1.0615874845854023e-10,
+   "max": 6.333475965902835e-09,
+   "median": 2.121017805833958e-09,
+   "mean": 2.431482570841581e-09,
+   "q01": 1.8954800229398217e-10,
+   "q99": 5.836151562021996e-09,
+   "label": "SO\u2082 mass",
+   "n_unique": 2370
+  },
+  "Sulfate_Mass": {
+   "min": 4.482286486418019e-10,
+   "max": 8.44625347440342e-09,
+   "median": 2.659990672171375e-09,
+   "mean": 2.6809772180058644e-09,
+   "q01": 6.398579999178367e-10,
+   "q99": 6.167063748563351e-09,
+   "label": "Sulfate mass",
+   "n_unique": 2369
+  },
+  "Sea_Salt_Mass": {
+   "min": 4.863351055206522e-09,
+   "max": 1.344789382073941e-07,
+   "median": 2.970610424313236e-08,
+   "mean": 3.4845420771034696e-08,
+   "q01": 8.08310396394063e-09,
+   "q99": 9.466011618997072e-08,
+   "label": "Sea-salt mass",
+   "n_unique": 2370
+  },
+  "Total_Aerosol_Extinction": {
+   "min": 0.07488564401865005,
+   "max": 0.44958531856536865,
+   "median": 0.18331897258758545,
+   "mean": 0.18711726367473602,
+   "q01": 0.09061157703399658,
+   "q99": 0.34165748953819275,
+   "label": "Aerosol extinction",
+   "n_unique": 2370
+  },
+  "temp_mean": {
+   "min": 18.079999923706055,
+   "max": 32.459999084472656,
+   "median": 26.3700008392334,
+   "mean": 26.070707321166992,
+   "q01": 21.010000228881836,
+   "q99": 29.540000915527344,
+   "label": "Mean temperature (\u00b0C)",
+   "n_unique": 1119
+  },
+  "rainfall": {
+   "min": 0.0,
+   "max": 113.73999786376953,
+   "median": 2.4200000762939453,
+   "mean": 5.438115119934082,
+   "q01": 0.0,
+   "q99": 38.060001373291016,
+   "label": "Rainfall (mm)",
+   "n_unique": 2786
+  },
+  "wind_mean": {
+   "min": 0.3499999940395355,
+   "max": 9.350000381469727,
+   "median": 2.819999933242798,
+   "mean": 3.01397442817688,
+   "q01": 0.699999988079071,
+   "q99": 6.659999847412109,
+   "label": "Wind speed (m/s)",
+   "n_unique": 777
+  },
+  "humid_mean": {
+   "min": 49.650001525878906,
+   "max": 96.87999725341797,
+   "median": 84.38999938964844,
+   "mean": 83.48798370361328,
+   "q01": 67.87000274658203,
+   "q99": 93.48999786376953,
+   "label": "Relative humidity (%)",
+   "n_unique": 2881
+  },
+  "shortwave_radiation": {
+   "min": 1.5499999523162842,
+   "max": 27.6299991607666,
+   "median": 20.270000457763672,
+   "mean": 19.496891021728516,
+   "q01": 6.929999828338623,
+   "q99": 26.110000610351562,
+   "label": "Shortwave radiation",
+   "n_unique": 2074
+  },
+  "lka_general_2020": {
+   "min": 0.0,
+   "max": 5203.5927734375,
+   "median": 4.31577205657959,
+   "mean": 7.539778232574463,
+   "q01": 1.0526750087738037,
+   "q99": 27.765615463256836,
+   "label": "Population density baseline",
+   "n_unique": 4406
+  },
+  "year": {
+   "min": 2014.0,
+   "max": 2024.0,
+   "median": 2022.0,
+   "mean": 2021.4418039905981,
+   "q01": 2014.0,
+   "q99": 2024.0,
+   "label": "Year",
+   "n_unique": 11
+  },
+  "month": {
+   "min": 1.0,
+   "max": 12.0,
+   "median": 5.0,
+   "mean": 5.876388487984908,
+   "q01": 1.0,
+   "q99": 12.0,
+   "label": "Month",
+   "n_unique": 12
+  },
+  "doy": {
+   "min": 1.0,
+   "max": 366.0,
+   "median": 128.0,
+   "mean": 163.5022525076544,
+   "q01": 3.0,
+   "q99": 364.0,
+   "label": "Day of year",
+   "n_unique": 366
+  },
+  "sin_doy": {
+   "min": -0.9999994039535522,
+   "max": 0.9999855756759644,
+   "median": 0.2882906496524811,
+   "mean": 0.15461169183254242,
+   "q01": -0.9986125826835632,
+   "q99": 0.9995787143707275,
+   "label": "Seasonality (sin)",
+   "n_unique": 366
+  },
+  "cos_doy": {
+   "min": -0.9999791979789734,
+   "max": 0.9999907612800598,
+   "median": 0.4831474721431732,
+   "mean": 0.27019304037094116,
+   "q01": -0.9980562925338745,
+   "q99": 0.9997687935829163,
+   "label": "Seasonality (cos)",
+   "n_unique": 366
+  },
+  "individualCount": {
+   "min": 1.0,
+   "max": 100000.0,
+   "median": 2.0,
+   "mean": 7.701882839202881,
+   "q01": 1.0,
+   "q99": 69.0,
+   "label": "Individuals counted",
+   "n_unique": 733
+  }
+ },
+ "groups": {
+  "Location": [
+   "decimalLatitude",
+   "decimalLongitude",
+   "elevation_meters"
+  ],
+  "Climate": [
+   "temp_mean",
+   "rainfall",
+   "wind_mean",
+   "humid_mean",
+   "shortwave_radiation"
+  ],
+  "Habitat": [
+   "NDVI",
+   "LandCover_Class",
+   "avg_rad",
+   "lka_general_2020"
+  ],
+  "Air quality": [
+   "Carbon_Mass",
+   "Dust_Mass",
+   "SO2_Mass",
+   "Sulfate_Mass",
+   "Sea_Salt_Mass",
+   "Total_Aerosol_Extinction"
+  ],
+  "Observation": [
+   "year",
+   "month",
+   "doy",
+   "individualCount"
+  ]
+ },
+ "features": [
+  "decimalLatitude",
+  "decimalLongitude",
+  "avg_rad",
+  "NDVI",
+  "LandCover_Class",
+  "elevation_meters",
+  "Carbon_Mass",
+  "Dust_Mass",
+  "SO2_Mass",
+  "Sulfate_Mass",
+  "Sea_Salt_Mass",
+  "Total_Aerosol_Extinction",
+  "temp_mean",
+  "rainfall",
+  "wind_mean",
+  "humid_mean",
+  "shortwave_radiation",
+  "lka_general_2020",
+  "year",
+  "month",
+  "doy",
+  "sin_doy",
+  "cos_doy",
+  "individualCount"
+ ],
+ "derived": [
+  "sin_doy",
+  "cos_doy"
+ ]
+}

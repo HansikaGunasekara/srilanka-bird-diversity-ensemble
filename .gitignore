@@ -1,0 +1,14 @@
+# the 403 MB source CSV - fetch it with `python src/download.py`
+data_raw/
+cache/
+
+# the study-grade bundle unpickles to 460 MB of trees; only the compact
+# deployment bundle is tracked, so Streamlit Cloud can actually load it
+artifacts/ensemble_full.joblib
+artifacts/ensemble_envonly.joblib
+
+__pycache__/
+*.pyc
+.DS_Store
+.playwright-mcp/
+artifacts/streamlit.log

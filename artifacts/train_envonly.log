@@ -1,0 +1,35 @@
+loaded (1552048, 26), target=stateProvince, 25 classes
+
+======================================================================================
+[envonly | random] train=225,000 test=75,000 features=22 classes=25
+======================================================================================
+  RandomForest           acc=0.9884 bal=0.9668 macroF1=0.9768  [6.5s]
+  ExtraTrees             acc=0.9781 bal=0.9540 macroF1=0.9654  [3.6s]
+  HistGradientBoosting   acc=0.9964 bal=0.9911 macroF1=0.9931  [165.8s]
+  XGBoost                acc=0.9972 bal=0.9913 macroF1=0.9929  [57.6s]
+  LightGBM               acc=0.9958 bal=0.9886 macroF1=0.9899  [36.8s]
+  LogisticRegression     acc=0.6739 bal=0.5692 macroF1=0.5855  [29.5s]
+  SoftVote (ensemble)    acc=0.9967 bal=0.9896 macroF1=0.9923
+    stack fold 1/3 done
+    stack fold 2/3 done
+    stack fold 3/3 done
+  Stacking (ensemble)    acc=0.9971 bal=0.9932 macroF1=0.9942  [483.4s]
+  -> best ensemble: Stacking = 0.9971
+
+======================================================================================
+[envonly | grouped] train=227,549 test=72,451 features=22 classes=25
+======================================================================================
+  RandomForest           acc=0.8580 bal=0.7670 macroF1=0.7885  [5.2s]
+  ExtraTrees             acc=0.7818 bal=0.7500 macroF1=0.7579  [2.9s]
+  HistGradientBoosting   acc=0.8975 bal=0.8522 macroF1=0.8616  [85.7s]
+  XGBoost                acc=0.8985 bal=0.8476 macroF1=0.8518  [57.6s]
+  LightGBM               acc=0.9008 bal=0.8556 macroF1=0.8617  [35.6s]
+  LogisticRegression     acc=0.5448 bal=0.4583 macroF1=0.4392  [26.0s]
+  SoftVote (ensemble)    acc=0.9032 bal=0.8576 macroF1=0.8683
+    stack fold 1/3 done
+    stack fold 2/3 done
+    stack fold 3/3 done
+  Stacking (ensemble)    acc=0.9028 bal=0.8637 macroF1=0.8740  [723.6s]
+  -> best ensemble: SoftVote = 0.9032
+
+wrote /Users/hansika/Desktop/MSc AI/sem 02/Applied_ML/bird_classification/artifacts/metrics_envonly.json

@@ -1,0 +1,12 @@
+# Pinned to light so the chart palette renders on the surface it was validated
+# against (#fcfcfb). The categorical pair (#2a78d6 / #eb6834) passes all six
+# checks on this surface; a theme flip would invalidate that.
+[theme]
+base = "light"
+primaryColor = "#2a78d6"
+backgroundColor = "#f9f9f7"
+secondaryBackgroundColor = "#fcfcfb"
+textColor = "#0b0b0b"
+
+[browser]
+gatherUsageStats = false
