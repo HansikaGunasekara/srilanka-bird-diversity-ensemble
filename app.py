@@ -4,7 +4,17 @@ Streamlit front end for the Sri Lanka Bird Diversity ensemble classifier.
 Target: stateProvince (25 classes) from environmental, climatic and geographic features.
 Run:  streamlit run app.py
 """
-import os, json
+import os
+
+# Must run BEFORE numpy/sklearn import, so their OpenMP runtimes start single-threaded.
+# These models predict ONE row per rerun, and for a single row the thread fan-out costs
+# far more than it saves: HistGradientBoosting.predict_proba takes 225 ms multi-threaded
+# versus 24 ms on one thread. Batch training is unaffected — it runs from src/train.py.
+for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
+           "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):
+    os.environ.setdefault(_v, "1")
+
+import json
 import numpy as np, pandas as pd, altair as alt, streamlit as st
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -83,9 +93,10 @@ FEATS, CLASSES = bundle["features"], bundle["classes"]
 STATS, GROUPS = fstats["stats"], fstats["groups"]
 
 
-def predict_all(row):
-    """Return {model_name: proba_vector} plus the two ensemble combinations."""
-    x = np.array([[row[f] for f in FEATS]], dtype=np.float32)
+@st.cache_data(max_entries=256, show_spinner=False)
+def _predict_cached(key):
+    """Cached on the exact feature vector, so revisiting a slider position is free."""
+    x = np.array([key], dtype=np.float32)
     out, stack_in = {}, []
     for n in bundle["names"]:
         m = bundle["base"][n]
@@ -99,6 +110,11 @@ def predict_all(row):
     sp[meta.classes_.astype(int)] = meta.predict_proba(np.hstack(stack_in).reshape(1, -1))[0]
     out["Stacking"] = sp
     return out
+
+
+def predict_all(row):
+    """Return {model_name: proba_vector} plus the two ensemble combinations."""
+    return _predict_cached(tuple(float(row[f]) for f in FEATS))
 
 
 st.title("🪶 Sri Lanka Bird Diversity — ensemble species-observation classifier")

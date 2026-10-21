@@ -7,7 +7,10 @@ Multi-class classification on the Hugging Face dataset
 **Headline result: 99.95% accuracy** (6-model ensemble, 25-class target, stratified
 random split) — and **99.25% when every test site is unseen during training**.
 
-**Live app:** deployed on Streamlit Community Cloud (see *Deployment* below).
+**Live app:** <https://srilanka-bird-diversity-ensemble.streamlit.app>
+
+> On the free tier the app **sleeps after inactivity**. A cold wake takes 30–60 s and
+> shows "Your app is waking up!" — open the link a minute before you need it.
 
 ---
 
@@ -199,12 +202,29 @@ Hosted on **Streamlit Community Cloud** from this repository:
 | Repository | `HansikaGunasekara/srilanka-bird-diversity-ensemble` |
 | Branch | `main` |
 | Main file path | `app.py` |
+| Live URL | <https://srilanka-bird-diversity-ensemble.streamlit.app> |
 | Python version | **3.11** (the bundle is a scikit-learn 1.6.1 pickle) |
 
 `requirements.txt` is pinned to exact versions on purpose: the committed model is a
 pickle, so the scikit-learn that loads it must match the one that wrote it. The app
 reads only `artifacts/` (23 MB bundle plus a few small JSON/CSV files) and never
 touches the 403 MB CSV, so a cold start stays well inside the free tier's memory.
+
+### Interaction latency
+
+`app.py` forces the numeric stack to a single thread **before numpy is imported**. These
+models score one row per rerun, and for a single row the OpenMP fan-out costs far more
+than it saves:
+
+| | multi-threaded | single thread |
+|---|---|---|
+| HistGradientBoosting, 1 row | 225 ms | **24 ms** |
+| whole 6-model ensemble, 1 row | 256 ms | **55 ms** |
+
+That is 4.7× per slider move. (The same model scores 500 rows in 75 ms in one call, which
+is what shows the cost is per-call overhead, not per-row work.) Predictions are also
+memoised on the exact feature vector, so returning to a slider position is free. Batch
+training is unaffected — it runs from `src/train.py`, outside the app.
 
 `--sample 0` uses all 1.55M rows; 300k was chosen because it saturates accuracy
 while fitting in 8 GB of RAM.
