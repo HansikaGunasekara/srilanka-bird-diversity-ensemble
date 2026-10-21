@@ -203,9 +203,27 @@ Hosted on **Streamlit Community Cloud** from this repository:
 | Branch | `main` |
 | Main file path | `app.py` |
 | Live URL | <https://srilanka-bird-diversity-ensemble.streamlit.app> |
-| Python version | **3.11** (the bundle is a scikit-learn 1.6.1 pickle) |
+| Python version | **3.11** — set this in *Manage app › Settings*, it is not optional |
 
-`requirements.txt` is pinned to exact versions on purpose: the committed model is a
+### The Python version is not optional
+
+Streamlit Cloud currently defaults new apps to **Python 3.14**, and the build fails there:
+
+```
+Using Python 3.14.8 environment at /home/adminuser/venv
+...
+RequiredDependencyException: The headers or library files could not be found for zlib,
+a required dependency when compiling Pillow from source.
+help: `pillow` was included because `streamlit==1.34.0` depends on `pillow`
+```
+
+Nothing in this stack ships wheels for 3.14 yet, so pip compiles numpy, scikit-learn and
+Pillow from source, and Pillow dies on the build image's missing zlib headers.
+`scikit-learn==1.6.1` — which the committed pickle requires — ships wheels for 3.9–3.13
+only. Set **Python 3.11** in *Manage app › Settings › Python version*, then reboot. The
+repo carries a `.python-version` file saying `3.11` for any host that honours it.
+
+`requirements.txt` is kept loose for the same reason: the committed model is a
 pickle, so the scikit-learn that loads it must match the one that wrote it. The app
 reads only `artifacts/` (23 MB bundle plus a few small JSON/CSV files) and never
 touches the 403 MB CSV, so a cold start stays well inside the free tier's memory.
