@@ -150,6 +150,54 @@ near 1%.
 
 ---
 
+## Explainability
+
+`src/explain.py` runs three methods on 6,000 held-out rows, against the LightGBM
+member (TreeSHAP is exact on it, and it scores 0.9990 alone — within 0.0005 of the
+full ensemble). Figures land in `docs/06..10_*.png`, machine-readable output in
+`artifacts/explainability.json`.
+
+**The three methods disagree, and the disagreement is the finding.** Combined share
+of importance attributed to latitude + longitude:
+
+| method | lat+lon share |
+|---|---|
+| impurity (what `train.py` reports) | 39.4% |
+| TreeSHAP | 49.2% |
+| permutation importance | **97.9%** |
+
+Permutation importance says the environmental features are worth 2.1% between them.
+The `envonly` run refutes that directly — retrained with no coordinates at all, the
+ensemble still scores **0.9971**. Both are correct: permutation measures *marginal*
+contribution with everything else still present, and every environmental column is
+redundant with location because it was joined on location. Read alone, any one of
+these three methods gives a wrong answer about this dataset.
+
+**What the model learned** lines up with Sri Lankan geography. For Nuwara Eliya the
+drivers are high elevation, *low* temperature, *low* sea-salt aerosol and low
+population density — highland, cold, landlocked, rural. Colombo keys on SO₂ and
+night-time radiance; Jaffna, which has no relief to speak of, keys on solar radiation
+and carbon aerosol instead. Partial dependence recovers Colombo's latitude at
+~6.9°N (true 6.93°N) and Nuwara Eliya's longitude at ~80.7–80.8°E (true 80.77°E).
+
+One caveat worth knowing: the PDP curves for elevation and population density are
+flat, which is an artefact rather than a result. PDP averages over the marginal
+distribution of the other features, so sweeping elevation to 1,000 m while latitude
+stays coastal evaluates physically impossible records. Elevation is a deterministic
+function of location here, so PDP's independence assumption is violated outright —
+ALE plots would be the right instrument.
+
+---
+
+## The written report
+
+`docs/ML_Assignment_Report_Hansika_Gunasekara.pdf` (26 pp.) — problem definition,
+algorithm justification, training and evaluation, the explainability audit above,
+critical discussion, and the front-end write-up. Source is `docs/report.html`;
+see *Reproducing* for the rebuild command.
+
+---
+
 ## Layout
 
 ```
@@ -162,9 +210,15 @@ bird_classification/
 │   ├── prep.py                feature engineering + parquet cache
 │   ├── ceiling.py             reproduces the 5.54% impossibility proof
 │   ├── train.py               ensemble training + evaluation
+│   ├── explain.py             SHAP + permutation importance + PDP
 │   └── make_app_assets.py     small artifacts so the app never loads the 403MB CSV
 ├── data_raw/                  downloaded CSV (403MB, not in git)
 ├── cache/features.parquet     engineered features
+├── docs/
+│   ├── report.html            the written report, source
+│   ├── ML_Assignment_Report_Hansika_Gunasekara.pdf
+│   ├── 01..05_*.png           app screenshots
+│   └── 06..10_*.png           explainability figures
 └── artifacts/                 models, metrics, logs
 ```
 
@@ -190,7 +244,18 @@ python src/train.py --sample 300000 --sets envonly --protocols random,grouped \
 python src/train.py --sample 300000 --sets full --protocols random,grouped \
                     --save --compact --tag metrics_deploy
 
+# explainability: SHAP, permutation importance, partial dependence (~1 min)
+python src/explain.py --sample 6000
+
 streamlit run app.py
+```
+
+Rebuild the report PDF from its source after editing `docs/report.html`:
+
+```bash
+cd docs && "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+    --headless --disable-gpu --no-pdf-header-footer \
+    --print-to-pdf="ML_Assignment_Report_Hansika_Gunasekara.pdf" report.html
 ```
 
 ## Deployment

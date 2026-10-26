@@ -2,3 +2,5 @@
 -r requirements.txt
 pyarrow>=16        # parquet cache in src/prep.py
 huggingface_hub>=0.23  # src/download.py
+shap>=0.46         # TreeSHAP in src/explain.py
+matplotlib>=3.8    # explainability figures (docs/06..10_*.png)

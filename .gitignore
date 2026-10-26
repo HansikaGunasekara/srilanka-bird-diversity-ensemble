@@ -12,3 +12,9 @@ __pycache__/
 .DS_Store
 .playwright-mcp/
 artifacts/streamlit.log
+
+# local environment rebuilt by the Appendix A commands
+.venv/
+
+# the lecturer's brief - not mine to redistribute in a public repo
+ML_Assignment_GuidelinesMSc in AI.pdf

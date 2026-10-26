@@ -1,0 +1,1171 @@
+{
+ "explained_model": "LightGBM",
+ "bundle": "deploy",
+ "n_rows_explained": 6000,
+ "n_rows_permutation": 4000,
+ "permutation_repeats": 5,
+ "features": [
+  "decimalLatitude",
+  "decimalLongitude",
+  "avg_rad",
+  "NDVI",
+  "LandCover_Class",
+  "elevation_meters",
+  "Carbon_Mass",
+  "Dust_Mass",
+  "SO2_Mass",
+  "Sulfate_Mass",
+  "Sea_Salt_Mass",
+  "Total_Aerosol_Extinction",
+  "temp_mean",
+  "rainfall",
+  "wind_mean",
+  "humid_mean",
+  "shortwave_radiation",
+  "lka_general_2020",
+  "year",
+  "month",
+  "doy",
+  "sin_doy",
+  "cos_doy",
+  "individualCount"
+ ],
+ "labels": [
+  "latitude",
+  "longitude",
+  "night lights",
+  "NDVI",
+  "land cover",
+  "elevation",
+  "carbon aerosol",
+  "dust aerosol",
+  "SO2",
+  "sulfate",
+  "sea salt",
+  "aerosol extinction",
+  "mean temp",
+  "rainfall",
+  "mean wind",
+  "mean humidity",
+  "solar radiation",
+  "population density",
+  "year",
+  "month",
+  "day of year",
+  "sin(day of year)",
+  "cos(day of year)",
+  "individual count"
+ ],
+ "global_shap": {
+  "decimalLatitude": 0.858328859843481,
+  "decimalLongitude": 0.7803294392328664,
+  "elevation_meters": 0.3522128262104982,
+  "lka_general_2020": 0.1632907019505332,
+  "SO2_Mass": 0.14478662701770645,
+  "avg_rad": 0.13693333347655048,
+  "temp_mean": 0.09507374761970684,
+  "Sea_Salt_Mass": 0.072400342289984,
+  "NDVI": 0.06981358517393763,
+  "Dust_Mass": 0.06480991145128034,
+  "humid_mean": 0.06397012408177226,
+  "wind_mean": 0.062085377775601594,
+  "Carbon_Mass": 0.06174575689604592,
+  "shortwave_radiation": 0.060871537489898264,
+  "LandCover_Class": 0.057614364331141366,
+  "Total_Aerosol_Extinction": 0.0470524238015443,
+  "Sulfate_Mass": 0.04259273176273397,
+  "rainfall": 0.03906565035635451,
+  "year": 0.03882402230832987,
+  "cos_doy": 0.03853726015143242,
+  "sin_doy": 0.0381820692961933,
+  "doy": 0.02393810002464597,
+  "individualCount": 0.01849350486264937,
+  "month": 0.0023373483381725233
+ },
+ "permutation_importance": {
+  "decimalLatitude": {
+   "mean": 0.6973,
+   "std": 0.003617319449537211
+  },
+  "decimalLongitude": {
+   "mean": 0.43895000000000006,
+   "std": 0.0017492855684535897
+  },
+  "elevation_meters": {
+   "mean": 0.018750000000000044,
+   "std": 0.0007416198487095521
+  },
+  "lka_general_2020": {
+   "mean": 0.0038000000000000256,
+   "std": 0.0004301162633521485
+  },
+  "SO2_Mass": {
+   "mean": 0.0002999999999999892,
+   "std": 0.00010000000000003338
+  },
+  "avg_rad": {
+   "mean": 0.00010000000000001119,
+   "std": 0.00033911649915625223
+  },
+  "temp_mean": {
+   "mean": 0.00030000000000001136,
+   "std": 0.00018708286933872393
+  },
+  "Sea_Salt_Mass": {
+   "mean": 0.0003500000000000281,
+   "std": 0.00020000000000002793
+  },
+  "NDVI": {
+   "mean": -4.999999999999449e-05,
+   "std": 9.999999999998899e-05
+  },
+  "Dust_Mass": {
+   "mean": 0.0,
+   "std": 0.00015811388300840154
+  },
+  "humid_mean": {
+   "mean": 9.999999999998899e-05,
+   "std": 0.00012247448713914542
+  },
+  "wind_mean": {
+   "mean": 4.999999999999449e-05,
+   "std": 9.999999999998897e-05
+  },
+  "Carbon_Mass": {
+   "mean": 0.0,
+   "std": 0.00015811388300840154
+  },
+  "shortwave_radiation": {
+   "mean": -0.00019999999999997797,
+   "std": 9.999999999998897e-05
+  },
+  "LandCover_Class": {
+   "mean": 0.0002499999999999947,
+   "std": 0.00015811388300843667
+  },
+  "Total_Aerosol_Extinction": {
+   "mean": 4.999999999999449e-05,
+   "std": 9.999999999998897e-05
+  },
+  "Sulfate_Mass": {
+   "mean": -4.999999999999449e-05,
+   "std": 9.999999999998899e-05
+  },
+  "rainfall": {
+   "mean": 0.0,
+   "std": 0.00015811388300840154
+  },
+  "year": {
+   "mean": 0.0,
+   "std": 0.0
+  },
+  "cos_doy": {
+   "mean": 9.999999999998899e-05,
+   "std": 0.00012247448713914542
+  },
+  "sin_doy": {
+   "mean": 0.0,
+   "std": 0.0
+  },
+  "doy": {
+   "mean": -9.999999999998899e-05,
+   "std": 0.00012247448713914542
+  },
+  "individualCount": {
+   "mean": 0.0,
+   "std": 0.0
+  },
+  "month": {
+   "mean": 0.0,
+   "std": 0.0
+  }
+ },
+ "impurity_importance": {
+  "decimalLatitude": 0.20468,
+  "decimalLongitude": 0.1889,
+  "elevation_meters": 0.09901,
+  "lka_general_2020": 0.10231,
+  "SO2_Mass": 0.03382,
+  "avg_rad": 0.05251,
+  "temp_mean": 0.02761,
+  "Sea_Salt_Mass": 0.02801,
+  "NDVI": 0.02861,
+  "Dust_Mass": 0.01869,
+  "humid_mean": 0.02395,
+  "wind_mean": 0.02485,
+  "Carbon_Mass": 0.01769,
+  "shortwave_radiation": 0.01834,
+  "LandCover_Class": 0.01623,
+  "Total_Aerosol_Extinction": 0.02104,
+  "Sulfate_Mass": 0.01593,
+  "rainfall": 0.01674,
+  "year": 0.00957,
+  "cos_doy": 0.01779,
+  "sin_doy": 0.01804,
+  "doy": 0.01127,
+  "individualCount": 0.00301,
+  "month": 0.0014
+ },
+ "ranking": {
+  "shap": [
+   "decimalLatitude",
+   "decimalLongitude",
+   "elevation_meters",
+   "lka_general_2020",
+   "SO2_Mass",
+   "avg_rad",
+   "temp_mean",
+   "Sea_Salt_Mass",
+   "NDVI",
+   "Dust_Mass",
+   "humid_mean",
+   "wind_mean",
+   "Carbon_Mass",
+   "shortwave_radiation",
+   "LandCover_Class",
+   "Total_Aerosol_Extinction",
+   "Sulfate_Mass",
+   "rainfall",
+   "year",
+   "cos_doy",
+   "sin_doy",
+   "doy",
+   "individualCount",
+   "month"
+  ],
+  "permutation": [
+   "decimalLatitude",
+   "decimalLongitude",
+   "elevation_meters",
+   "lka_general_2020",
+   "Sea_Salt_Mass",
+   "temp_mean",
+   "SO2_Mass",
+   "LandCover_Class",
+   "avg_rad",
+   "humid_mean",
+   "cos_doy",
+   "Total_Aerosol_Extinction",
+   "wind_mean",
+   "rainfall",
+   "Dust_Mass",
+   "Carbon_Mass",
+   "year",
+   "month",
+   "sin_doy",
+   "individualCount",
+   "Sulfate_Mass",
+   "NDVI",
+   "doy",
+   "shortwave_radiation"
+  ],
+  "impurity": [
+   "decimalLatitude",
+   "decimalLongitude",
+   "lka_general_2020",
+   "elevation_meters",
+   "avg_rad",
+   "SO2_Mass",
+   "NDVI",
+   "Sea_Salt_Mass",
+   "temp_mean",
+   "wind_mean",
+   "humid_mean",
+   "Total_Aerosol_Extinction",
+   "Dust_Mass",
+   "shortwave_radiation",
+   "sin_doy",
+   "cos_doy",
+   "Carbon_Mass",
+   "rainfall",
+   "LandCover_Class",
+   "Sulfate_Mass",
+   "doy",
+   "year",
+   "individualCount",
+   "month"
+  ]
+ },
+ "per_province_top_features": {
+  "Ampara": [
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.36327167837167046,
+    "direction": "raises"
+   },
+   {
+    "feature": "avg_rad",
+    "label": "night lights",
+    "mean_abs_shap": 0.3059671912328353,
+    "direction": "raises"
+   },
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.26108500653261385,
+    "direction": "raises"
+   },
+   {
+    "feature": "wind_mean",
+    "label": "mean wind",
+    "mean_abs_shap": 0.19520183637795252,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.18242655815748796,
+    "direction": "raises"
+   }
+  ],
+  "Anuradhapura": [
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.843472729942846,
+    "direction": "raises"
+   },
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.7466776718426054,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.28561456123208284,
+    "direction": "raises"
+   },
+   {
+    "feature": "lka_general_2020",
+    "label": "population density",
+    "mean_abs_shap": 0.234434041645162,
+    "direction": "raises"
+   },
+   {
+    "feature": "avg_rad",
+    "label": "night lights",
+    "mean_abs_shap": 0.19244467082167233,
+    "direction": "lowers"
+   }
+  ],
+  "Badulla": [
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 1.2415524512322826,
+    "direction": "raises"
+   },
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.6407303142400986,
+    "direction": "raises"
+   },
+   {
+    "feature": "wind_mean",
+    "label": "mean wind",
+    "mean_abs_shap": 0.3123470331442515,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.2846445871151365,
+    "direction": "raises"
+   },
+   {
+    "feature": "humid_mean",
+    "label": "mean humidity",
+    "mean_abs_shap": 0.17814924017120665,
+    "direction": "raises"
+   }
+  ],
+  "Batticaloa": [
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.4515439050431229,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.21309080346389256,
+    "direction": "raises"
+   },
+   {
+    "feature": "temp_mean",
+    "label": "mean temp",
+    "mean_abs_shap": 0.024334013752426813,
+    "direction": "raises"
+   },
+   {
+    "feature": "SO2_Mass",
+    "label": "SO2",
+    "mean_abs_shap": 0.007972817624802352,
+    "direction": "raises"
+   },
+   {
+    "feature": "lka_general_2020",
+    "label": "population density",
+    "mean_abs_shap": 0.006489758594353044,
+    "direction": "raises"
+   }
+  ],
+  "Colombo": [
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 1.8241669578689155,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 1.6373564515376433,
+    "direction": "raises"
+   },
+   {
+    "feature": "SO2_Mass",
+    "label": "SO2",
+    "mean_abs_shap": 0.8420064556663169,
+    "direction": "raises"
+   },
+   {
+    "feature": "avg_rad",
+    "label": "night lights",
+    "mean_abs_shap": 0.8040010777790411,
+    "direction": "raises"
+   },
+   {
+    "feature": "lka_general_2020",
+    "label": "population density",
+    "mean_abs_shap": 0.25418234608669227,
+    "direction": "raises"
+   }
+  ],
+  "Galle": [
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 1.7576885688385442,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 1.3363634991599658,
+    "direction": "raises"
+   },
+   {
+    "feature": "lka_general_2020",
+    "label": "population density",
+    "mean_abs_shap": 0.21741866808562121,
+    "direction": "raises"
+   },
+   {
+    "feature": "avg_rad",
+    "label": "night lights",
+    "mean_abs_shap": 0.21657168412607752,
+    "direction": "raises"
+   },
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.18913616078399653,
+    "direction": "raises"
+   }
+  ],
+  "Gampaha": [
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 1.7045540126347638,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 1.5854526124578727,
+    "direction": "raises"
+   },
+   {
+    "feature": "SO2_Mass",
+    "label": "SO2",
+    "mean_abs_shap": 0.7004196822460809,
+    "direction": "raises"
+   },
+   {
+    "feature": "avg_rad",
+    "label": "night lights",
+    "mean_abs_shap": 0.3993865041741624,
+    "direction": "raises"
+   },
+   {
+    "feature": "Carbon_Mass",
+    "label": "carbon aerosol",
+    "mean_abs_shap": 0.20834804793919917,
+    "direction": "raises"
+   }
+  ],
+  "Hambantota": [
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 2.0583788840478108,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 1.5106556451977537,
+    "direction": "raises"
+   },
+   {
+    "feature": "avg_rad",
+    "label": "night lights",
+    "mean_abs_shap": 0.30576292923582776,
+    "direction": "raises"
+   },
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.1792715918437,
+    "direction": "raises"
+   },
+   {
+    "feature": "Carbon_Mass",
+    "label": "carbon aerosol",
+    "mean_abs_shap": 0.08673830751237155,
+    "direction": "lowers"
+   }
+  ],
+  "Jaffna": [
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.43891715397604747,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.3306053957290047,
+    "direction": "raises"
+   },
+   {
+    "feature": "Carbon_Mass",
+    "label": "carbon aerosol",
+    "mean_abs_shap": 0.25086271219899436,
+    "direction": "raises"
+   },
+   {
+    "feature": "shortwave_radiation",
+    "label": "solar radiation",
+    "mean_abs_shap": 0.21882746336877232,
+    "direction": "raises"
+   },
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.18992331876820262,
+    "direction": "raises"
+   }
+  ],
+  "Kalutara": [
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 1.4896952041994498,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 1.1110016493890666,
+    "direction": "raises"
+   },
+   {
+    "feature": "lka_general_2020",
+    "label": "population density",
+    "mean_abs_shap": 0.4164907638396396,
+    "direction": "raises"
+   },
+   {
+    "feature": "SO2_Mass",
+    "label": "SO2",
+    "mean_abs_shap": 0.24172272438663572,
+    "direction": "raises"
+   },
+   {
+    "feature": "NDVI",
+    "label": "NDVI",
+    "mean_abs_shap": 0.17854219230778984,
+    "direction": "raises"
+   }
+  ],
+  "Kandy": [
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.7117097090689131,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.500964755732296,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.3873833427330325,
+    "direction": "raises"
+   },
+   {
+    "feature": "Dust_Mass",
+    "label": "dust aerosol",
+    "mean_abs_shap": 0.2438360874597078,
+    "direction": "raises"
+   },
+   {
+    "feature": "lka_general_2020",
+    "label": "population density",
+    "mean_abs_shap": 0.1889569684427103,
+    "direction": "raises"
+   }
+  ],
+  "Kegalla": [
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.7098257791912189,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.6945469046669321,
+    "direction": "raises"
+   },
+   {
+    "feature": "lka_general_2020",
+    "label": "population density",
+    "mean_abs_shap": 0.466860179360922,
+    "direction": "raises"
+   },
+   {
+    "feature": "temp_mean",
+    "label": "mean temp",
+    "mean_abs_shap": 0.4145379734823081,
+    "direction": "raises"
+   },
+   {
+    "feature": "cos_doy",
+    "label": "cos(day of year)",
+    "mean_abs_shap": 0.1898928008143572,
+    "direction": "lowers"
+   }
+  ],
+  "Kilinochchi": [
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.26109811019620066,
+    "direction": "raises"
+   },
+   {
+    "feature": "NDVI",
+    "label": "NDVI",
+    "mean_abs_shap": 0.238339041822714,
+    "direction": "raises"
+   },
+   {
+    "feature": "Dust_Mass",
+    "label": "dust aerosol",
+    "mean_abs_shap": 0.17852497507959145,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.16609754952367856,
+    "direction": "raises"
+   },
+   {
+    "feature": "lka_general_2020",
+    "label": "population density",
+    "mean_abs_shap": 0.11831534812271982,
+    "direction": "raises"
+   }
+  ],
+  "Kurunegala": [
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.6756781976423297,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.6041134913033078,
+    "direction": "raises"
+   },
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.36847544899338375,
+    "direction": "raises"
+   },
+   {
+    "feature": "LandCover_Class",
+    "label": "land cover",
+    "mean_abs_shap": 0.19855532867160533,
+    "direction": "raises"
+   },
+   {
+    "feature": "Carbon_Mass",
+    "label": "carbon aerosol",
+    "mean_abs_shap": 0.16525156201711827,
+    "direction": "lowers"
+   }
+  ],
+  "Mannar": [
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.8421584540554582,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.6466468874986205,
+    "direction": "raises"
+   },
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.1368722831692667,
+    "direction": "raises"
+   },
+   {
+    "feature": "NDVI",
+    "label": "NDVI",
+    "mean_abs_shap": 0.1266090320261057,
+    "direction": "raises"
+   },
+   {
+    "feature": "year",
+    "label": "year",
+    "mean_abs_shap": 0.10289800210562954,
+    "direction": "lowers"
+   }
+  ],
+  "Matale": [
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.7989428610828819,
+    "direction": "raises"
+   },
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.6205719984420365,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.4785416632200467,
+    "direction": "raises"
+   },
+   {
+    "feature": "sin_doy",
+    "label": "sin(day of year)",
+    "mean_abs_shap": 0.17948381712074274,
+    "direction": "lowers"
+   },
+   {
+    "feature": "lka_general_2020",
+    "label": "population density",
+    "mean_abs_shap": 0.16664497786749616,
+    "direction": "raises"
+   }
+  ],
+  "Matara": [
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 2.162980983404149,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.7551808507240391,
+    "direction": "raises"
+   },
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.4437575735828089,
+    "direction": "raises"
+   },
+   {
+    "feature": "SO2_Mass",
+    "label": "SO2",
+    "mean_abs_shap": 0.16657914026975418,
+    "direction": "raises"
+   },
+   {
+    "feature": "Sulfate_Mass",
+    "label": "sulfate",
+    "mean_abs_shap": 0.1643207220280561,
+    "direction": "lowers"
+   }
+  ],
+  "Monaragala": [
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 1.2092442696701813,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.9176874123274229,
+    "direction": "raises"
+   },
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.6256695116902838,
+    "direction": "raises"
+   },
+   {
+    "feature": "lka_general_2020",
+    "label": "population density",
+    "mean_abs_shap": 0.2801471756280005,
+    "direction": "raises"
+   },
+   {
+    "feature": "LandCover_Class",
+    "label": "land cover",
+    "mean_abs_shap": 0.17539165544176233,
+    "direction": "raises"
+   }
+  ],
+  "Mullaittivu": [
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.3175532983248869,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.3039770067164616,
+    "direction": "raises"
+   },
+   {
+    "feature": "year",
+    "label": "year",
+    "mean_abs_shap": 0.17257179574913692,
+    "direction": "raises"
+   },
+   {
+    "feature": "lka_general_2020",
+    "label": "population density",
+    "mean_abs_shap": 0.10964573846891869,
+    "direction": "raises"
+   },
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.1090304040776461,
+    "direction": "lowers"
+   }
+  ],
+  "Nuwara": [
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.8097096105898228,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.5645516178478448,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.4811001480577889,
+    "direction": "raises"
+   },
+   {
+    "feature": "temp_mean",
+    "label": "mean temp",
+    "mean_abs_shap": 0.3434412004947071,
+    "direction": "raises"
+   },
+   {
+    "feature": "lka_general_2020",
+    "label": "population density",
+    "mean_abs_shap": 0.214190567153459,
+    "direction": "raises"
+   }
+  ],
+  "Polonnaruwa": [
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.6627093681504481,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.6448723297207688,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.49452525375710654,
+    "direction": "raises"
+   },
+   {
+    "feature": "Sea_Salt_Mass",
+    "label": "sea salt",
+    "mean_abs_shap": 0.22647638819082233,
+    "direction": "raises"
+   },
+   {
+    "feature": "wind_mean",
+    "label": "mean wind",
+    "mean_abs_shap": 0.21382780445675167,
+    "direction": "raises"
+   }
+  ],
+  "Puttalam": [
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 1.5023690304319852,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.7780528874818463,
+    "direction": "raises"
+   },
+   {
+    "feature": "lka_general_2020",
+    "label": "population density",
+    "mean_abs_shap": 0.20602433849633162,
+    "direction": "raises"
+   },
+   {
+    "feature": "NDVI",
+    "label": "NDVI",
+    "mean_abs_shap": 0.16503423640280573,
+    "direction": "raises"
+   },
+   {
+    "feature": "Sea_Salt_Mass",
+    "label": "sea salt",
+    "mean_abs_shap": 0.1291190794300552,
+    "direction": "raises"
+   }
+  ],
+  "Ratnapura": [
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 1.3069578615895505,
+    "direction": "raises"
+   },
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.7288166603505087,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.41721438034960623,
+    "direction": "raises"
+   },
+   {
+    "feature": "SO2_Mass",
+    "label": "SO2",
+    "mean_abs_shap": 0.3011472967062655,
+    "direction": "lowers"
+   },
+   {
+    "feature": "LandCover_Class",
+    "label": "land cover",
+    "mean_abs_shap": 0.21972194985390162,
+    "direction": "raises"
+   }
+  ],
+  "Trincomalee": [
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.734257144700997,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.24992718309061773,
+    "direction": "raises"
+   },
+   {
+    "feature": "temp_mean",
+    "label": "mean temp",
+    "mean_abs_shap": 0.0384275826963148,
+    "direction": "raises"
+   },
+   {
+    "feature": "Sea_Salt_Mass",
+    "label": "sea salt",
+    "mean_abs_shap": 0.025499504961782358,
+    "direction": "raises"
+   },
+   {
+    "feature": "SO2_Mass",
+    "label": "SO2",
+    "mean_abs_shap": 0.014672269170002644,
+    "direction": "raises"
+   }
+  ],
+  "Vavuniya": [
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "mean_abs_shap": 0.693646370030837,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "mean_abs_shap": 0.44862434578163735,
+    "direction": "raises"
+   },
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "mean_abs_shap": 0.2609301664903782,
+    "direction": "raises"
+   },
+   {
+    "feature": "temp_mean",
+    "label": "mean temp",
+    "mean_abs_shap": 0.20475914533336975,
+    "direction": "raises"
+   },
+   {
+    "feature": "Dust_Mass",
+    "label": "dust aerosol",
+    "mean_abs_shap": 0.1813872039179258,
+    "direction": "raises"
+   }
+  ]
+ },
+ "local_example": {
+  "row_index": 0,
+  "true_class": "Matara",
+  "predicted_class": "Matara",
+  "base_value": -6.836515305286071,
+  "contributions": [
+   {
+    "feature": "decimalLatitude",
+    "label": "latitude",
+    "value": 5.99921989440918,
+    "shap": 7.661153029919845
+   },
+   {
+    "feature": "decimalLongitude",
+    "label": "longitude",
+    "value": 80.42678833007812,
+    "shap": 1.281105113492085
+   },
+   {
+    "feature": "SO2_Mass",
+    "label": "SO2",
+    "value": 1.8104473475943905e-09,
+    "shap": 0.3243703893710183
+   },
+   {
+    "feature": "Sea_Salt_Mass",
+    "label": "sea salt",
+    "value": 3.295788886248374e-08,
+    "shap": 0.21421253222832848
+   },
+   {
+    "feature": "Sulfate_Mass",
+    "label": "sulfate",
+    "value": 2.437657631304546e-09,
+    "shap": -0.18763680805818528
+   },
+   {
+    "feature": "cos_doy",
+    "label": "cos(day of year)",
+    "value": 0.5707842111587524,
+    "shap": -0.16454812785808862
+   },
+   {
+    "feature": "elevation_meters",
+    "label": "elevation",
+    "value": 9.0,
+    "shap": -0.12882387067224982
+   },
+   {
+    "feature": "LandCover_Class",
+    "label": "land cover",
+    "value": 8.0,
+    "shap": 0.11688233063780117
+   },
+   {
+    "feature": "avg_rad",
+    "label": "night lights",
+    "value": 0.4699999988079071,
+    "shap": 0.09580056503732269
+   },
+   {
+    "feature": "wind_mean",
+    "label": "mean wind",
+    "value": 4.099999904632568,
+    "shap": -0.0573689394753203
+   },
+   {
+    "feature": "humid_mean",
+    "label": "mean humidity",
+    "value": 85.7699966430664,
+    "shap": 0.04616560945529636
+   },
+   {
+    "feature": "month",
+    "label": "month",
+    "value": 2.0,
+    "shap": 0.03954922202098517
+   }
+  ]
+ }
+}
