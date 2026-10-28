@@ -18,3 +18,6 @@ artifacts/streamlit.log
 
 # the lecturer's brief - not mine to redistribute in a public repo
 ML_Assignment_GuidelinesMSc in AI.pdf
+
+# the rendered demo video - submit to Moodle, not GitHub (12 MB)
+*.mp4
