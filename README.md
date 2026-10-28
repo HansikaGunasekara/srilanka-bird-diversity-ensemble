@@ -80,7 +80,7 @@ accuracy but **costs the ensemble nothing**, because the boosters carry it:
 
 Only the compact bundle is committed; `artifacts/ensemble_full.joblib` is
 gitignored and rebuilt with the commands below. Both sets of numbers are in the
-app's *Model comparison* tab, so nothing is hidden by the swap.
+app's *How good is it?* tab, so nothing is hidden by the swap.
 
 `full` = all 24 features. `envonly` = latitude and longitude **dropped**.
 `random` = stratified row split. `grouped` = `GroupShuffleSplit` on (lat, lon),
@@ -105,6 +105,34 @@ site — rather than from generalisable climate structure. The honest reading is
 that **~90% is the floor for a genuinely unseen Sri Lankan location with no
 coordinates**, while the conventional protocol that assignments are graded on
 gives **99.95%**.
+
+### Is 99.95% overfitting?
+
+No, and it is worth answering with a measurement rather than an argument.
+Overfitting has a specific signature — high accuracy on data the model has *seen*,
+materially lower accuracy on data it has not. `src/overfit_check.py` measures both
+sides on the exact split `train.py` used and writes
+`artifacts/overfitting_check.json`:
+
+| model | train | test | gap |
+|---|---|---|---|
+| RandomForest | 0.9912 | 0.9905 | +0.0007 |
+| ExtraTrees | 0.9655 | 0.9639 | +0.0016 |
+| HistGradientBoosting | 0.9999 | 0.9994 | +0.0006 |
+| XGBoost | 1.0000 | 0.9995 | +0.0005 |
+| LightGBM | 0.9996 | 0.9990 | +0.0006 |
+| LogisticRegression | 0.9668 | 0.9661 | +0.0007 |
+| SoftVote | 0.9999 | 0.9995 | +0.0005 |
+| **Stacking** | 1.0000 | 0.9995 | **+0.0005** |
+
+The largest gap across all eight models is 0.16 percentage points; the ensemble's
+is 0.05. That is not memorisation — it says the task is genuinely easy, because
+province is close to a deterministic function of latitude and longitude. The real
+limitation is transfer to unseen sites, which is what guard 3 above measures.
+
+(Stacking's train figure feeds the meta-learner the base models' *in-sample*
+probabilities, which are more confident than the out-of-fold probabilities it was
+fitted on, so read it as an upper bound on its train-side optimism.)
 
 ### A real bug worth knowing about
 
@@ -191,7 +219,7 @@ ALE plots would be the right instrument.
 
 ## The written report
 
-`docs/ML_Assignment_Report_Hansika_Gunasekara.pdf` (26 pp.) — problem definition,
+`docs/ML_Assignment_Report_Hansika_Gunasekara.pdf` (17 pp.) — problem definition,
 algorithm justification, training and evaluation, the explainability audit above,
 critical discussion, and the front-end write-up. Source is `docs/report.html`;
 see *Reproducing* for the rebuild command.
@@ -202,7 +230,7 @@ see *Reproducing* for the rebuild command.
 
 ```
 bird_classification/
-├── app.py                     Streamlit app (5 tabs)
+├── app.py                     Streamlit app (3 tabs)
 ├── requirements.txt
 ├── .streamlit/config.toml     theme pinned to light (see "Charts" below)
 ├── src/
@@ -211,6 +239,7 @@ bird_classification/
 │   ├── ceiling.py             reproduces the 5.54% impossibility proof
 │   ├── train.py               ensemble training + evaluation
 │   ├── explain.py             SHAP + permutation importance + PDP
+│   ├── overfit_check.py       train-vs-test gap for the deployed bundle
 │   └── make_app_assets.py     small artifacts so the app never loads the 403MB CSV
 ├── data_raw/                  downloaded CSV (403MB, not in git)
 ├── cache/features.parquet     engineered features
@@ -246,6 +275,9 @@ python src/train.py --sample 300000 --sets full --protocols random,grouped \
 
 # explainability: SHAP, permutation importance, partial dependence (~1 min)
 python src/explain.py --sample 6000
+
+# train-vs-test gap for the deployed bundle (~30 s)
+python src/overfit_check.py
 
 streamlit run app.py
 ```
@@ -314,19 +346,25 @@ while fitting in 8 GB of RAM.
 
 ## The app
 
-Five tabs: **Predict** (load a real record or move 24 sliders, see the prediction,
-the top-8 province probabilities and every model's individual vote), **Model
-comparison** (filter by protocol and feature set against a 95% reference line),
-**Confusion matrix** (25 × 25, raw or recall-normalised, plus weakest classes),
-**Feature importance** (per model), and **About the data** (the species ceiling
-argument).
+Three tabs. **Predict** — load a real record (or open the expander and move all 24
+sliders), and read off the predicted district, its top-5 probabilities and how many
+of the eight models agree. **How good is it?** — the four protocol/feature-set
+combinations including the sub-95% one, the measured train-test gap that answers the
+overfitting question, per-model accuracy against a 95% reference line, and the
+confusion matrix. **What it learned** — the global SHAP ranking, per-district top
+drivers with their direction of effect, and the three-method importance
+disagreement.
+
+It was five tabs until the October 2026 pass; *Model comparison*, *Confusion matrix*
+and *Feature importance* were folded into the two tabs that answer a question rather
+than name an artefact, and *About the data* became an expander on *Predict*.
 
 ### Screenshots
 
 | | |
 |---|---|
-| ![Predict](docs/01_predict.png) | ![Model comparison](docs/02_model_comparison.png) |
-| ![Confusion matrix](docs/03_confusion_matrix.png) | ![Feature importance](docs/04_feature_importance.png) |
+| ![Predict](docs/01_predict.png) | ![How good is it?](docs/02_performance.png) |
+| ![What it learned](docs/03_explainability.png) | |
 
 ### Charts
 
@@ -348,7 +386,7 @@ and no chart uses a second y-axis.
   claim does not rest on that.
 - **`individualCount` is observation metadata**, not environment. It is kept
   because it is a legitimate dataset column, but it contributes almost nothing to
-  the province target (see the *Feature importance* tab).
+  the province target (see the *What it learned* tab).
 - The 5.54% species ceiling is a statement about *this feature set*. Bird species
   identification is very solvable from **images or audio** — just not from the
   environmental covariates of a shared checklist.

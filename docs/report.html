@@ -29,6 +29,10 @@
     background:var(--panel); padding:0 2px; border-radius:3px; }
   table{ border-collapse:collapse; width:100%; margin:10px 0 12px; font-size:9pt;
     font-family:"IBM Plex Sans",Arial,sans-serif; page-break-inside:avoid; }
+  /* Long reference tables may break between rows; a short one still stays whole. */
+  table.split{ page-break-inside:auto; }
+  table.split tr{ page-break-inside:avoid; }
+  table.split thead{ display:table-header-group; }
   th{ background:var(--ink); color:#fff; text-align:left; padding:6px 8px; font-weight:600; }
   td{ padding:5px 8px; border-bottom:1px solid var(--rule); vertical-align:top; }
   tr:nth-child(even) td{ background:#FAFAF7; }
@@ -39,8 +43,8 @@
   /* Cap figure height so a plot cannot monopolise a page and strand half of it blank.
      width:auto keeps the aspect ratio; the cap is what lets body text share the page. */
   figure img{ display:block; margin:0 auto; max-width:100%; width:auto;
-    max-height:104mm; border:1px solid var(--panel-b); border-radius:4px; }
-  figure.wide img{ max-height:132mm; }
+    max-height:86mm; border:1px solid var(--panel-b); border-radius:4px; }
+  figure.wide img{ max-height:104mm; }
   figcaption{ font-size:8.6pt; color:var(--muted); margin-top:5px;
     font-family:"IBM Plex Sans",Arial,sans-serif; }
   figcaption b{ color:var(--ink); }
@@ -61,9 +65,8 @@
   .meta dt{ color:var(--muted); font-size:8.6pt; letter-spacing:1.1px;
     text-transform:uppercase; margin-top:11px; }
   .meta dd{ margin:1px 0 0; }
-  .toc{ page-break-after:always; }
   .toc ol{ font-family:"IBM Plex Sans",Arial,sans-serif; font-size:10pt; padding-left:20px; }
-  .toc li{ margin-bottom:5px; }
+  .toc li{ margin-bottom:4px; }
   .toc .marks{ color:var(--muted); font-size:8.8pt; }
   .abstract{ background:var(--panel); border:1px solid var(--panel-b);
     padding:14px 16px; border-radius:5px; margin:14px 0 4px; }
@@ -87,14 +90,13 @@
   <div class="eyebrow">MSc in Artificial Intelligence &middot; Applied Machine Learning</div>
   <h1>Predicting Geographic Provenance from Bird-Observation Covariates</h1>
   <div class="sub">A stacked heterogeneous ensemble over 1.55&nbsp;million Sri&nbsp;Lankan
-    biodiversity records, with a Bayes-error analysis that redefined the task
-    and a three-method explainability audit.</div>
+    biodiversity records, with a three-method explainability audit.</div>
   <hr>
   <dl class="meta">
     <dt>Author</dt><dd>Hansika Gunasekara</dd>
     <dt>Student ID</dt><dd>&mdash;</dd>
     <dt>Module</dt><dd>Applied Machine Learning &middot; Semester 2</dd>
-    <dt>Submission date</dt><dd>26 October 2026</dd>
+    <dt>Submission date</dt><dd>28 October 2026</dd>
     <dt>Dataset</dt><dd class="mono">DilushaChandrasiri/SriLanka-Bird-Diversity-Dataset (Hugging Face)</dd>
     <dt>Source code</dt><dd class="mono">github.com/HansikaGunasekara/srilanka-bird-diversity-ensemble</dd>
     <dt>Live application</dt><dd class="mono">srilanka-bird-diversity-ensemble.streamlit.app</dd>
@@ -105,89 +107,67 @@
 <section class="toc">
   <h2 style="margin-top:0">Contents</h2>
   <ol>
-    <li>Problem Definition &amp; Dataset Collection <span class="marks">&middot; data source, features, size, preprocessing, ethics</span></li>
+    <li>Problem Definition &amp; Dataset Collection <span class="marks">&middot; source, features, size, preprocessing, ethics</span></li>
     <li>Selection of a New Machine Learning Algorithm <span class="marks">&middot; stacked generalisation, and how it differs</span></li>
     <li>Model Training and Evaluation <span class="marks">&middot; splits, hyperparameters, metrics, results</span></li>
     <li>Explainability and Interpretation <span class="marks">&middot; SHAP, permutation importance, partial dependence</span></li>
     <li>Critical Discussion <span class="marks">&middot; limitations, data quality, fairness, ethics</span></li>
     <li>Front-End Integration <span class="marks">&middot; the deployed Streamlit application</span></li>
-    <li>Conclusion, References, Appendix</li>
+    <li>Conclusion and References</li>
   </ol>
 
   <div class="abstract">
     <h4>Abstract</h4>
-    <p>This report applies a stacked heterogeneous ensemble to 1,552,048 bird-observation
-    records from Sri Lanka, each joined to sixteen remotely-sensed environmental covariates.
-    The assignment was originally framed as species classification across 429 classes. A
-    Bayes-error analysis conducted before any modelling showed that framing to be
-    <em>provably</em> unsolvable: because every environmental covariate is a deterministic
-    function of the record's location and date, the 1.55&nbsp;million rows collapse to only
-    63,392 distinct feature vectors, and roughly twenty-four rows share a byte-identical
-    input while carrying different species labels. Top-1 species accuracy is therefore
-    capped at 5.54% for any classifier that will ever be built on this feature set. The task
-    was accordingly re-specified as predicting <code>stateProvince</code> &mdash; one of
-    twenty-five administrative districts &mdash; whose measured ceiling on the same features
-    is 100%. A six-member ensemble combining bagging, histogram-based boosting and a linear
-    model, fused by accuracy-weighted soft voting and by a logistic meta-learner trained on
-    three-fold out-of-fold probabilities, reaches <b>0.9995</b> accuracy under the
-    conventional stratified split. Because province correlates strongly with latitude and
-    longitude, three independent guards against spatial memorisation were run; the strictest
-    of them &mdash; unseen test sites <em>and</em> coordinates withheld &mdash; yields
-    <b>0.9032</b>, below the assignment's 95% threshold, and is reported rather than
-    suppressed. A three-method explainability audit (TreeSHAP, permutation importance and
-    partial dependence) shows the model's learned structure aligns with Sri Lankan physical
-    geography, and surfaces a quantified disagreement between importance methods that is
-    itself the report's most interesting interpretive finding.</p>
+    <p>A stacked heterogeneous ensemble of six base learners is applied to 1,552,048
+    Sri Lankan bird-observation records, each joined to sixteen remotely-sensed
+    environmental covariates, to predict the district a record came from. A Bayes-error
+    analysis run before any modelling showed the original 429-way species framing to be
+    capped at 5.54% accuracy for any possible classifier on these features, so the task
+    was re-specified to <code>stateProvince</code>, whose measured ceiling is 100%. The
+    ensemble reaches 0.9995 accuracy under the conventional stratified split, and the
+    train&ndash;test gap of 0.0005 confirms this is task simplicity rather than
+    overfitting. Because district correlates strongly with latitude and longitude, three
+    guards against spatial memorisation were run; the strictest &mdash; unseen test sites
+    with coordinates withheld &mdash; yields 0.9032, and that is the honest figure for a
+    new location. A three-method explainability audit shows the learned structure aligns
+    with Sri Lankan physical geography, and surfaces a quantified disagreement between
+    importance methods that one method alone would have resolved wrongly.</p>
   </div>
 </section>
 
 <!-- ============================================ 1 -->
 <h2>1 &nbsp; Problem Definition and Dataset Collection</h2>
 
-<h3>1.1 &nbsp; The problem and why it matters</h3>
+<h3>1.1 &nbsp; The problem and its relevance</h3>
 <p>Sri Lanka is one of the world's thirty-six biodiversity hotspots, and bird communities are
-a standard indicator taxon for habitat condition: they are conspicuous, well-recorded by
-volunteers, and respond quickly to land-use change. The island's biodiversity record is
-dominated by citizen-science checklists, which are abundant but spatially uneven.</p>
+a standard indicator taxon for habitat condition. The island's record is dominated by
+citizen-science checklists, which are abundant but spatially uneven and carry a persistent rate
+of transcription and georeferencing error.</p>
 
-<p>The applied question this project addresses is: <b>given only the environmental and
-temporal signature of an observation &mdash; its climate, terrain, vegetation, aerosol
-chemistry and date &mdash; can a model recover <em>where in Sri Lanka</em> that observation
-came from?</b> A model that can do so has three concrete uses. First, <i>record validation</i>:
-national biodiversity databases carry a persistent rate of transcription and georeferencing
-errors, and a classifier that disagrees confidently with a record's stated district flags it
-for human review. Second, <i>provenance inference</i> for historical or digitised records whose
-locality is vague ("Central Province, 1974"). Third, and most interesting scientifically, the
-model is a measuring instrument for <b>environmental distinctiveness</b>: if a district's
-ecological fingerprint can be recognised without its coordinates, that district is
-environmentally distinct, and the magnitude of the accuracy drop when coordinates are removed
-quantifies how much of its identity is geographic accident versus genuine habitat character.</p>
+<p>The question addressed here is: <b>given only the environmental and temporal signature of an
+observation &mdash; its climate, terrain, vegetation, aerosol chemistry and date &mdash; can a
+model recover which district of Sri Lanka it came from?</b> Three uses follow.
+<i>Record validation</i>: a classifier that disagrees confidently with a record's stated
+district flags it for human review. <i>Provenance inference</i> for digitised historical records
+whose locality is vague ("Central Province, 1974"). And as a <i>measure of environmental
+distinctiveness</i>: the accuracy drop when coordinates are removed quantifies how much of a
+district's identity is geographic accident rather than genuine habitat character.</p>
 
 <h3>1.2 &nbsp; Data source and how it was collected</h3>
-<p>The dataset is <code>DilushaChandrasiri/SriLanka-Bird-Diversity-Dataset</code>, published
-openly on the Hugging Face Hub. It was obtained programmatically with
-<code>huggingface_hub.snapshot_download</code> (see <code>src/download.py</code>), which
-pins a dataset revision and makes the acquisition step reproducible rather than a manual
-download.</p>
+<p>The dataset is <code>DilushaChandrasiri/SriLanka-Bird-Diversity-Dataset</code>,
+published openly on the Hugging Face Hub. It was obtained programmatically with
+<code>huggingface_hub.snapshot_download</code> (<code>src/download.py</code>), which pins
+a revision and makes acquisition reproducible rather than a manual download.</p>
 
-<p>The file is a <b>derived, pre-joined product</b> rather than a raw export, and understanding
-that provenance turned out to be decisive for this project. Its two layers are:</p>
-<ul>
-  <li><b>Occurrence layer.</b> Darwin-Core-style species occurrence records
-  (<code>verbatimScientificName</code>, <code>individualCount</code>,
-  <code>decimalLatitude</code>, <code>decimalLongitude</code>, <code>eventDate</code>,
-  <code>stateProvince</code>), consistent with a GBIF-mediated aggregation of
-  citizen-science checklists.</li>
-  <li><b>Environmental layer.</b> Sixteen covariates attached to each record by spatial join
-  from satellite and reanalysis products &mdash; VIIRS night-time lights, MODIS NDVI and land
-  cover, a digital elevation model, MERRA-2 aerosol species, and gridded climate normals.</li>
-</ul>
-
-<p><b>The critical consequence:</b> the environmental layer is a deterministic lookup keyed on
-(latitude, longitude). Two records from the same place on the same day necessarily carry
-identical environmental values. This is not a defect of the dataset &mdash; it is how such
-products are built &mdash; but it governs what can and cannot be predicted from it, as
-§1.5 establishes.</p>
+<p>The file is a <b>derived, pre-joined product</b> rather than a raw export, and that
+provenance proved decisive. It has two layers: an <b>occurrence layer</b> of Darwin-Core style
+species records, consistent with a GBIF-mediated aggregation of volunteer checklists; and an
+<b>environmental layer</b> of sixteen covariates attached to each record by spatial join from
+satellite and reanalysis products &mdash; VIIRS night-time lights, MODIS NDVI and land cover, a
+digital elevation model, MERRA-2 aerosol species and gridded climate normals. The environmental
+layer is therefore a deterministic lookup keyed on (latitude, longitude): two records from the
+same place on the same day necessarily carry identical environmental values. This is how such
+products are built, but it governs what can be predicted from them, as &sect;1.3 shows.</p>
 
 <h3>1.3 &nbsp; Size, features and target variable</h3>
 
@@ -199,279 +179,236 @@ products are built &mdash; but it governs what can and cannot be predicted from 
   <div><span class="v">25</span><span class="l">target classes</span></div>
 </div>
 
-<table>
-  <tr><th style="width:21%">Group</th><th style="width:37%">Columns</th><th>Description and role</th></tr>
+<table class="split">
+  <tr><th style="width:22%">Group</th><th style="width:38%">Columns</th><th>Role</th></tr>
   <tr><td><b>Geographic</b> (2)</td>
       <td class="mono">decimalLatitude, decimalLongitude</td>
-      <td>WGS-84 coordinates. Deliberately isolated so they can be withheld as an ablation (§3.5).</td></tr>
+      <td>WGS-84 coordinates. Isolated deliberately so they can be withheld as an ablation.</td></tr>
   <tr><td><b>Climate</b> (5)</td>
       <td class="mono">temp_mean, rainfall, wind_mean, humid_mean, shortwave_radiation</td>
       <td>Gridded climate normals at the observation point.</td></tr>
   <tr><td><b>Terrain &amp; vegetation</b> (4)</td>
       <td class="mono">elevation_meters, NDVI, LandCover_Class, lka_general_2020</td>
-      <td>DEM elevation, greenness index, categorical land-cover code, modelled population density.</td></tr>
+      <td>DEM elevation, greenness, categorical land-cover code, modelled population density.</td></tr>
   <tr><td><b>Aerosol chemistry</b> (6)</td>
       <td class="mono">Carbon_Mass, Dust_Mass, SO2_Mass, Sulfate_Mass, Sea_Salt_Mass, Total_Aerosol_Extinction</td>
-      <td>MERRA-2 column masses. <code>Sea_Salt_Mass</code> proves an informative marine-proximity proxy (§4.4).</td></tr>
+      <td>MERRA-2 column masses. <code>Sea_Salt_Mass</code> proves an informative marine-proximity proxy (&sect;4.2).</td></tr>
   <tr><td><b>Light</b> (1)</td>
       <td class="mono">avg_rad</td>
       <td>Night-time radiance &mdash; an effective urbanisation proxy.</td></tr>
   <tr><td><b>Temporal</b> (5, engineered)</td>
       <td class="mono">year, month, doy, sin_doy, cos_doy</td>
-      <td>Decomposed from <code>eventDate</code>; see §1.4.</td></tr>
+      <td>Decomposed from <code>eventDate</code>; see &sect;1.4.</td></tr>
   <tr><td><b>Observation metadata</b> (1)</td>
       <td class="mono">individualCount</td>
-      <td>Retained as a legitimate column; contributes almost nothing (§4.3).</td></tr>
+      <td>Retained as a legitimate column; contributes almost nothing.</td></tr>
   <tr><td colspan="3" style="background:#EDF3FB">
       <b>Target: <code>stateProvince</code></b> &mdash; 25 administrative districts.
-      Severely imbalanced: Colombo 18.64% of records, Vavuniya 0.12% &mdash; a <b>161&times;</b> ratio.
-      This imbalance dictates the choice of evaluation metrics (§3.4) and is the basis of the
-      fairness analysis in §5.3.</td></tr>
+      Severely imbalanced: Colombo 18.64% of records, Vavuniya 0.12% &mdash; a
+      <b>161&times;</b> ratio, which dictates the metrics in &sect;3.3 and the fairness
+      analysis in &sect;5.3.</td></tr>
 </table>
 
-<h3>1.4 &nbsp; Preprocessing</h3>
-<p>Six deliberate steps take the raw file to the matrix the models see. Each is implemented in
-<code>src/prep.py</code>.</p>
+<div class="callout alert">
+  <h4>Why the target is district and not species</h4>
+  <p style="margin-bottom:0">The assignment was first framed as 429-way species classification.
+  An irreducible-error (Bayes) analysis run before any fitting (<code>src/ceiling.py</code>)
+  showed that framing to be unsolvable in principle. Because every environmental covariate is a
+  deterministic function of (latitude, longitude, date), the 1,552,048 rows collapse to
+  <b>63,392 distinct keys</b> &mdash; roughly 24 rows per key &mdash; and rows sharing a key are
+  byte-identical in every feature while carrying different species labels. The best any
+  classifier can do on a group of identical inputs is predict that group's most frequent label;
+  summing those best cases gives a <b>Bayes-optimal accuracy of 0.0554</b> for species against
+  <b>1.0000</b> for <code>stateProvince</code>. The target was changed on this evidence. The
+  claim is about <em>this feature set</em>, not about bird identification, which is highly
+  solvable from images or audio.</p>
+</div>
 
-<table>
-  <tr><th style="width:22%">Step</th><th style="width:30%">Operation</th><th>Justification</th></tr>
+<h3>1.4 &nbsp; Preprocessing</h3>
+<p>Six steps take the raw file to the matrix the models see, all in <code>src/prep.py</code>.</p>
+
+<table class="split">
+  <tr><th style="width:23%">Step</th><th style="width:30%">Operation</th><th>Justification</th></tr>
   <tr><td><b>Date decomposition</b></td><td>Parse <code>eventDate</code> &rarr; <code>year</code>, <code>month</code>, <code>doy</code></td>
-      <td>A tree cannot split usefully on a raw timestamp. It can split on season and on long-run trend.</td></tr>
+      <td>A tree cannot split usefully on a raw timestamp; it can split on season and on long-run trend.</td></tr>
   <tr><td><b>Cyclical encoding</b></td><td><code>sin_doy = sin(2&pi;&middot;doy/365.25)</code>, likewise cosine</td>
-      <td>Under a linear encoding, 31 December (day 365) and 1 January (day 1) sit at opposite extremes though they are one day apart. Projecting onto the unit circle restores adjacency, so a split near the year boundary is expressible.</td></tr>
+      <td>Under a linear encoding, 31 December and 1 January sit at opposite extremes though one day apart. Projecting onto the unit circle restores adjacency.</td></tr>
   <tr><td><b>Memory downcast</b></td><td>float64 &rarr; float32; cache as Parquet</td>
-      <td>Halves the working set, letting 1.55&nbsp;M &times; 24 fit comfortably in 8&nbsp;GB. Reload drops from ~90&nbsp;s (CSV parse) to ~2&nbsp;s.</td></tr>
+      <td>Halves the working set so 1.55&nbsp;M &times; 24 fits in 8&nbsp;GB. Reload drops from ~90&nbsp;s to ~2&nbsp;s.</td></tr>
   <tr><td><b>Leakage audit</b></td><td>Drop the <code>index</code> column after testing it</td>
-      <td>A monotonic row identifier can encode the label if the file was written grouped by class. Tested explicitly: adjacent rows share a species 1.04% of the time, versus 1/429 = 0.23% under independence &mdash; a weak ordering effect, not a usable leak. Dropped regardless.</td></tr>
+      <td>A monotonic row id can encode the label if the file was written grouped by class. Tested: adjacent rows share a species 1.04% of the time against 0.23% under independence &mdash; a weak ordering effect, not a usable leak. Dropped regardless.</td></tr>
   <tr><td><b>Two feature sets</b></td><td><code>full</code> (24) and <code>envonly</code> (22)</td>
       <td>A built-in ablation. <code>envonly</code> removes the coordinates so the accuracy claim cannot rest on a point-in-polygon lookup.</td></tr>
   <tr><td><b>Targeted scaling</b></td><td><code>StandardScaler</code> inside the logistic-regression pipeline only</td>
-      <td>Tree ensembles are invariant to monotone rescaling; logistic regression is not. Scaling is applied only where it changes the fit, and fitted inside the pipeline so the scaler never sees test rows.</td></tr>
+      <td>Tree ensembles are invariant to monotone rescaling; logistic regression is not. Fitted inside the pipeline so the scaler never sees test rows.</td></tr>
 </table>
 
-<p>No imputation was required: the delivered file has no missing values in the modelled columns.
-No categorical encoding was required either &mdash; <code>LandCover_Class</code> arrives as an
-integer code, which tree learners handle natively as an ordinal split variable.</p>
+<p>No imputation was required &mdash; the delivered file has no missing values in the
+modelled columns &mdash; and no categorical encoding either, since
+<code>LandCover_Class</code> arrives as an integer code that tree learners handle natively
+as an ordinal split variable.</p>
 
-<h3>1.5 &nbsp; The analysis that changed the target variable</h3>
-
-<div class="callout alert">
-  <h4>Species classification on this feature set is capped at 5.54%, for any model</h4>
-  <p style="margin-bottom:6px">Before fitting anything, an irreducible-error (Bayes) analysis was run
-  (<code>src/ceiling.py</code>). Because every environmental covariate is a deterministic function of
-  (latitude, longitude, date), the feature matrix has far less diversity than the row count suggests:</p>
-  <ul style="margin-bottom:6px">
-    <li>1,552,048 rows collapse to <b>63,392 distinct (lat, lon, date) keys</b> &mdash; about
-    <b>24 rows per key</b>.</li>
-    <li>Rows sharing a key are <em>byte-identical in every feature</em> while carrying different species.</li>
-    <li>The best any classifier can do on a group of identical inputs is predict that group's
-    most frequent label. Summing those best cases over all groups gives the
-    <b>Bayes-optimal accuracy</b>.</li>
-  </ul>
-  <p style="margin-bottom:0">Measured ceilings: <b>0.0554</b> for species on environment+geography+time;
-  0.3102 even if <code>individualCount</code> is added; 0.9602 if the problem is relaxed to the fifty
-  commonest species. For <code>stateProvince</code> the ceiling is <b>1.0000</b>. The assignment's
-  95% requirement is therefore unreachable under species classification by a factor of seventeen,
-  and perfectly reachable under province classification. <b>The target was changed on this evidence,
-  not for convenience.</b></p>
-</div>
-
-<p>This is a statement about <em>this feature set</em>, not about the difficulty of bird
-identification. Species recognition is highly solvable from images or audio; it is simply not
-recoverable from the environmental covariates of a shared checklist, because two birders standing
-in the same place on the same morning record different species from identical environmental
-conditions. The re-specified task &mdash; predicting provenance &mdash; is not a weaker substitute
-but a different and genuinely answerable question, with the practical applications set out in §1.1.</p>
-
-<h3>1.6 &nbsp; Ethical data use</h3>
-<p>The dataset was audited column-by-column for personal and sensitive content before use.</p>
-<ul>
-  <li><b>No personal data is present.</b> The twenty-four delivered columns contain no
-  observer name, identifier, email, institution or licence field. Darwin Core's
-  <code>recordedBy</code> and <code>recordedByID</code> &mdash; the fields that would carry
-  contributor identity &mdash; are absent from this derivative. No individual is identifiable
-  from any record, so no consent question arises and GDPR-style obligations are not engaged.</li>
-  <li><b>The data is openly licensed and openly published</b> on the Hugging Face Hub, and is
-  used here for non-commercial academic work consistent with that publication.</li>
-  <li><b>One genuine sensitivity exists and is handled.</b> Precise coordinates for threatened
-  species are a recognised poaching and disturbance risk, which is why GBIF supports
-  coordinate generalisation for sensitive taxa. This project does not publish any raw record.
-  The deployed application ships a 600-row anonymised sample
-  (<code>artifacts/samples.csv</code>) used solely to populate example inputs, and the sample
-  carries no species name attached to a precise locality.</li>
-  <li><b>Attribution.</b> The underlying observations are the work of volunteer recorders.
-  The dataset, its Hugging Face author and the citizen-science origin are credited in the
-  application's <i>About the data</i> tab and in this report.</li>
-</ul>
+<h3>1.5 &nbsp; Ethical data use</h3>
+<p>The dataset was audited column-by-column for personal and sensitive content before use.
+<b>No personal data is present</b>: the twenty-four delivered columns contain no observer name,
+identifier, email or institution, and Darwin Core's <code>recordedBy</code> and
+<code>recordedByID</code> &mdash; the fields that would carry contributor identity &mdash; are
+absent from this derivative. No individual is identifiable from any record, so no consent
+question arises, and the data is openly licensed and used here for non-commercial academic work.
+One genuine sensitivity exists and is handled: precise coordinates for threatened species are a
+recognised poaching risk, which is why GBIF supports coordinate generalisation for sensitive
+taxa. This project publishes no raw record &mdash; the deployed application ships a 600-row
+anonymised sample used only to populate example inputs. The underlying observations are the work
+of volunteer recorders, and the dataset, its author and its citizen-science origin are credited
+in this report and in the application.</p>
 
 <!-- ============================================ 2 -->
-<h2 class="pagebreak">2 &nbsp; Selection of a New Machine Learning Algorithm</h2>
+<h2>2 &nbsp; Selection of a New Machine Learning Algorithm</h2>
 
-<h3>2.1 &nbsp; The algorithm selected</h3>
-<p>The method applied is <b>stacked generalisation</b> (Wolpert, 1992) &mdash; also called
-<i>stacking</i> &mdash; over a deliberately heterogeneous pool of six base learners, with
-<b>histogram-based gradient boosting</b> (LightGBM, and its scikit-learn and XGBoost analogues)
-as the dominant members of that pool.</p>
+<h3>2.1 &nbsp; The algorithm, and why it was selected</h3>
+<p>The method applied is <b>stacked generalisation</b> (Wolpert, 1992) over a deliberately
+heterogeneous pool of six base learners, with <b>histogram-based gradient boosting</b>
+(LightGBM, and its scikit-learn and XGBoost analogues) as the dominant members of that pool.
+Neither component is a standard taught model, and the combination is the submitted
+contribution. It is not a deep-learning model and not an image-processing application, as
+the brief requires.</p>
 
-<p>Neither component is a standard taught model, and the combination is the submitted contribution:</p>
+<p><b>Stacking</b> replaces a fixed combination rule with a <em>learned</em> one. A second-level
+model &mdash; here multinomial logistic regression &mdash; is trained to map the concatenated
+class-probability vectors of the base learners onto the true label; with six learners and
+twenty-five classes its input is a 150-dimensional vector per row. Crucially those inputs must be
+<b>out-of-fold</b> predictions: each base learner's prediction for a training row comes from a
+copy of that learner which never saw the row. Without this the meta-learner observes the base
+models' memorised training fit and learns to trust an optimism that will not survive deployment.
+<b>Histogram-based gradient boosting</b>, meanwhile, bins each continuous feature into at most
+255 buckets before any tree is grown, reducing per-split cost from
+O(<i>n</i>&nbsp;log&nbsp;<i>n</i>) to O(bins). LightGBM adds <b>GOSS</b> (keep all
+large-gradient instances, subsample the small-gradient ones) and <b>EFB</b> (merge
+mutually-exclusive sparse features), and grows <b>leaf-wise</b> rather than level-wise.</p>
+
+<p>Three reasons drove the choice:</p>
 <ul>
-  <li><b>Stacking</b> replaces a fixed combination rule with a <em>learned</em> one. A
-  second-level model &mdash; here multinomial logistic regression &mdash; is trained to map the
-  concatenated class-probability vectors of the base learners onto the true label. With six
-  learners and twenty-five classes the meta-learner's input is a 150-dimensional vector per row.
-  Crucially, those inputs must be <b>out-of-fold</b> predictions: each base learner's prediction
-  for a training row is produced by a copy of that learner which never saw the row. Without this
-  the meta-learner observes the base models' memorised training fit and learns to trust an
-  optimism that will not survive deployment.</li>
-  <li><b>Histogram-based gradient boosting</b> bins each continuous feature into at most 255
-  discrete buckets before any tree is grown, turning split-finding from a sort over <i>n</i>
-  values into a scan over 255 bins and reducing per-split cost from O(<i>n</i>&nbsp;log&nbsp;<i>n</i>)
-  to O(bins). LightGBM adds two further mechanisms absent from a classical boosted tree:
-  <b>GOSS</b> (Gradient-based One-Side Sampling), which keeps all large-gradient instances
-  and randomly subsamples the small-gradient ones, and <b>EFB</b> (Exclusive Feature Bundling),
-  which merges mutually-exclusive sparse features into a single bundled column. It also grows
-  <b>leaf-wise</b> rather than level-wise, splitting whichever leaf offers the greatest loss
-  reduction, which produces deeper, more asymmetric trees at equal leaf count.</li>
+  <li><b>The error structure calls for heterogeneity.</b> The task is near-separable in the
+  geographic features but genuinely hard in the environment-only ablation. Bagged forests reduce
+  variance, boosted ensembles reduce bias, and a linear model contributes a smooth decision
+  surface trees cannot express, so their errors decorrelate &mdash; the precondition under which
+  ensembling helps at all. The spread across base learners on the hardest protocol, 0.5448 to
+  0.9008, confirms the pool is genuinely diverse.</li>
+  <li><b>A learned combiner beats a fixed one where base quality varies by class.</b> Soft voting
+  applies one weight per model across all 25 districts; stacking can learn that LightGBM should
+  be trusted for highland districts and the forest for coastal ones. On the hardest protocol it
+  improves balanced accuracy over soft voting (0.8637 against 0.8576) and macro-F1 (0.8740
+  against 0.8683) &mdash; it helps precisely on the small classes plain accuracy ignores.</li>
+  <li><b>Scale.</b> Histogram binning is what makes 1.55&nbsp;M rows &times; 24 features
+  tractable on a laptop; LightGBM fits the full six-way problem in 19.6&nbsp;seconds.</li>
 </ul>
 
-<h3>2.2 &nbsp; Why this algorithm was selected</h3>
-<ol>
-  <li><b>The error structure of the problem calls for heterogeneity.</b> The task is
-  near-separable in the geographic features but genuinely hard in the environment-only
-  ablation. Bagged forests reduce variance; boosted ensembles reduce bias; a linear model
-  contributes a globally smooth decision surface that trees cannot express. Their errors are
-  decorrelated, which is the precondition under which ensembling helps at all. The measured
-  spread across base learners &mdash; 0.5448 to 0.9008 on the hardest protocol &mdash; confirms
-  the pool is genuinely diverse rather than six views of one model.</li>
-  <li><b>A learned combiner outperforms a fixed one where base quality varies by class.</b>
-  Soft voting applies one weight per model across all twenty-five provinces. Stacking can learn
-  that LightGBM should be trusted for highland districts while the forest is better for
-  coastal ones. The effect is visible where it matters most: on the hardest protocol stacking
-  improves balanced accuracy over soft voting (0.8637 vs 0.8576) and macro-F1 (0.8740 vs 0.8683)
-  even where plain accuracy is marginally lower &mdash; that is, it helps precisely on the small
-  classes that plain accuracy ignores.</li>
-  <li><b>Scale.</b> Histogram binning is what makes 1.55&nbsp;million rows &times; 24 features
-  tractable on a laptop. LightGBM fits the full six-way problem in 19.6&nbsp;seconds where the
-  exact-split alternative is an order of magnitude slower.</li>
-  <li><b>It satisfies the assignment's constraints exactly:</b> it is not a deep-learning model,
-  it is not an image-processing application, and it is not a model covered in lectures.</li>
-</ol>
-
-<h3>2.3 &nbsp; How it differs from the standard models</h3>
-<table>
-  <tr><th style="width:16%">Standard model</th><th style="width:30%">What it does</th><th>How the submitted method differs</th></tr>
+<h3>2.2 &nbsp; How it differs from the standard models</h3>
+<table class="split">
+  <tr><th style="width:18%">Standard model</th><th style="width:28%">What it does</th><th>How the submitted method differs</th></tr>
   <tr><td><b>Decision tree</b></td>
       <td>One greedy recursive partition; each split chosen to maximise local purity.</td>
-      <td>A single tree is a high-variance estimator that commits irrevocably to its first split. The submitted method fits <em>hundreds</em> of trees under two different regimes &mdash; independent and randomised (bagging) versus sequential on the residual gradient (boosting) &mdash; and then learns, at a second level, how much to trust each regime per class. A tree gives one partition; this gives a learned consensus over many.</td></tr>
+      <td>A single tree is a high-variance estimator that commits irrevocably to its first split. The submitted method fits hundreds of trees under two different regimes &mdash; independent and randomised (bagging) versus sequential on the residual gradient (boosting) &mdash; then learns at a second level how much to trust each regime per class. A tree gives one partition; this gives a learned consensus over many.</td></tr>
   <tr><td><b>Logistic regression</b></td>
       <td>One linear decision boundary per class in the raw feature space.</td>
-      <td>Logistic regression appears here only as the <em>meta-learner</em>, operating not on the 24 raw features but on the 150-dimensional simplex of base-model probabilities. Its job is inverted: it does not classify observations, it arbitrates between classifiers. The difference is measurable &mdash; as a base learner on the <code>envonly</code> set it scores 0.5448, while the same algorithm as a meta-learner contributes to a 0.9028 result.</td></tr>
+      <td>Logistic regression appears here only as the <em>meta-learner</em>, operating not on the 24 raw features but on the 150-dimensional simplex of base-model probabilities. Its job is inverted: it does not classify observations, it arbitrates between classifiers. The difference is measurable &mdash; as a base learner on <code>envonly</code> it scores 0.5448, while the same algorithm as meta-learner contributes to a 0.9028 result.</td></tr>
   <tr><td><b>k-Nearest Neighbours</b></td>
-      <td>Non-parametric; classifies by majority vote among the <i>k</i> closest training points under a fixed metric.</td>
-      <td>k-NN has no training phase, stores the entire dataset, and degrades badly with 24 dimensions of heterogeneous scale. The submitted method compresses 1.55&nbsp;M rows into a fixed set of split thresholds, predicts in ~55&nbsp;ms, and learns a feature-adaptive partition rather than relying on one global distance metric. On this data a metric-based method would also be dominated by the two coordinate columns, which is the exact failure mode the project is designed to test against.</td></tr>
-  <tr><td><b>Random Forest</b><br><span class="footnote">(included as a base learner, not the contribution)</span></td>
-      <td>Bagged trees, each on a bootstrap sample with a random feature subset at each split; averaged.</td>
+      <td>Non-parametric; majority vote among the <i>k</i> closest training points under a fixed metric.</td>
+      <td>k-NN has no training phase, stores the entire dataset, and degrades with 24 dimensions of heterogeneous scale. The submitted method compresses 1.55&nbsp;M rows into a fixed set of split thresholds, predicts in ~55&nbsp;ms, and learns a feature-adaptive partition rather than relying on one global distance metric.</td></tr>
+  <tr><td><b>Random Forest</b><br><span class="footnote">(a base learner here, not the contribution)</span></td>
+      <td>Bagged trees, each on a bootstrap sample with a random feature subset per split; averaged.</td>
       <td>A forest averages with <em>equal</em> weight and all its members share one inductive bias. Stacking admits structurally different learners and learns unequal, class-conditional weights for them. The forest is one of six voices here, not the method.</td></tr>
 </table>
 
 <!-- ============================================ 3 -->
-<h2 class="pagebreak">3 &nbsp; Model Training and Evaluation</h2>
+<h2>3 &nbsp; Model Training and Evaluation</h2>
 
-<h3>3.1 &nbsp; Sampling</h3>
-<p>All reported runs train on a <b>300,000-row stratified sample</b> drawn with a fixed seed from
-the 1.55&nbsp;million available. The constraint is memory: the study-grade forests unpickle to
-roughly 460&nbsp;MB and peak well above that during fitting. A sample-size sweep showed accuracy
-flat to three decimal places between 300k and the full corpus on the random protocol, so the
-sample costs nothing measurable on the headline number; §5.1 notes where it may still cost
-something on the rarest classes.</p>
+<h3>3.1 &nbsp; Train / validation / test split</h3>
+<p>All reported runs train on a <b>300,000-row stratified sample</b> drawn with a fixed seed
+from the 1.55&nbsp;million available; the constraint is memory, and a sample-size sweep
+showed accuracy flat to three decimal places between 300k and the full corpus. The protocol
+is a three-way separation, with the validation stage implemented as cross-validation rather
+than a single fixed block.</p>
 
-<h3>3.2 &nbsp; Train / validation / test split</h3>
-<p>The protocol is a three-way separation, but the validation stage is implemented as
-cross-validation rather than as a single fixed block &mdash; a choice worth stating explicitly
-because it affects how the numbers should be read.</p>
-
-<table>
-  <tr><th style="width:17%">Partition</th><th style="width:16%">Size</th><th style="width:25%">Mechanism</th><th>Purpose</th></tr>
+<table class="split">
+  <tr><th style="width:17%">Partition</th><th style="width:16%">Size</th><th style="width:26%">Mechanism</th><th>Purpose</th></tr>
   <tr><td><b>Test</b></td><td class="num">75,000 (25%)</td>
       <td><code>train_test_split(test_size=0.25, stratify=y)</code></td>
-      <td>Held out before any fitting; touched exactly once, to produce every number in §3.5. No model, hyperparameter or threshold was chosen using it.</td></tr>
+      <td>Held out before any fitting; touched once, to produce every number in &sect;3.4. No model, hyperparameter or threshold was chosen using it.</td></tr>
   <tr><td><b>Train</b></td><td class="num">225,000 (75%)</td><td>the complement</td>
       <td>Fits the six base learners.</td></tr>
   <tr><td><b>Validation</b><br>(stacking)</td><td class="num">3 &times; 75,000</td>
       <td><code>StratifiedKFold(n_splits=3)</code> inside the training set</td>
-      <td>Generates out-of-fold probabilities. Every training row receives a prediction from a model that did not see it; these are the meta-learner's inputs. This <em>is</em> the validation set for the stacking stage, used three times over rather than once.</td></tr>
+      <td>Generates out-of-fold probabilities: every training row receives a prediction from a model that did not see it. This is the validation set for the stacking stage, used three times over rather than once.</td></tr>
   <tr><td><b>Validation</b><br>(early stopping)</td><td class="num">12% of train</td>
       <td><code>validation_fraction=0.12</code> inside <code>HistGradientBoostingClassifier</code></td>
-      <td>An internal held-out slice, carved from the training set only, that decides when to stop boosting (<code>n_iter_no_change=25</code>).</td></tr>
+      <td>An internal slice carved from the training set only, deciding when to stop boosting (<code>n_iter_no_change=25</code>).</td></tr>
 </table>
 
-<p>Stratification preserves the 161&times; class imbalance in every partition, so the rarest
-province (Vavuniya) retains 84 test rows &mdash; enough to estimate recall, though with wide
-uncertainty, as §5.3 quantifies.</p>
+<p>A second, stricter protocol is also run throughout: <code>GroupShuffleSplit</code> on
+rounded (latitude, longitude), so that every test <em>site</em> is absent from training.
+Stratification preserves the 161&times; imbalance in every partition, so the rarest district
+(Vavuniya) retains 84 test rows &mdash; enough to estimate recall, though with wide
+uncertainty (&sect;5.3).</p>
 
-<h3>3.3 &nbsp; Hyperparameter choices</h3>
-<p>Hyperparameters were set by reasoned construction and targeted diagnosis rather than by an
-automated search; §5.1 records this as the project's clearest methodological limitation. The
-values and their justifications:</p>
+<h3>3.2 &nbsp; Hyperparameter choices</h3>
+<p>Hyperparameters were set by reasoned construction and targeted diagnosis rather than by
+automated search; &sect;5.1 records this as the clearest methodological limitation.</p>
 
-<table>
-  <tr><th style="width:24%">Model</th><th style="width:34%">Settings</th><th>Reasoning</th></tr>
+<table class="split">
+  <tr><th style="width:23%">Model</th><th style="width:35%">Settings</th><th>Reasoning</th></tr>
   <tr><td><b>RandomForest</b><br><b>ExtraTrees</b></td>
       <td class="mono">n_estimators=100, min_samples_leaf=8, max_features="sqrt"</td>
-      <td>&radic;<i>p</i> &asymp; 5 of 24 features per split is the standard classification default and maximises inter-tree decorrelation. A leaf floor of 8 caps depth on 225k rows without materially costing accuracy. The deployment build uses <code>n_estimators=40, min_samples_leaf=50</code> (§6.2).</td></tr>
+      <td>&radic;<i>p</i> &asymp; 5 of 24 features per split is the standard classification default and maximises inter-tree decorrelation. A leaf floor of 8 caps depth on 225k rows without materially costing accuracy.</td></tr>
   <tr><td><b>HistGradientBoosting</b></td>
-      <td class="mono">max_iter=300, learning_rate=0.10, max_leaf_nodes=31, l2_regularization=10.0, early_stopping=True, n_iter_no_change=25</td>
-      <td>31 leaves is the conventional depth-5-equivalent for histogram boosters. The learning rate of 0.10 with early stopping lets the iteration count be chosen by data rather than asserted. <b><code>l2_regularization=10.0</code> is load-bearing, not cosmetic</b> &mdash; see the diagnosis below.</td></tr>
+      <td class="mono">max_iter=300, learning_rate=0.10, max_leaf_nodes=31, l2_regularization=10.0, early_stopping=True</td>
+      <td>31 leaves is the conventional depth-5 equivalent for histogram boosters. A learning rate of 0.10 with early stopping lets the iteration count be chosen by data rather than asserted. <code>l2_regularization</code> is load-bearing &mdash; see below.</td></tr>
   <tr><td><b>XGBoost</b></td>
       <td class="mono">n_estimators=400, learning_rate=0.15, max_depth=9, subsample=0.9, colsample_bytree=0.8, tree_method="hist"</td>
-      <td>Depth-9 level-wise trees are the complexity analogue of LightGBM's 63 leaf-wise leaves. Row and column subsampling supply the stochastic regularisation that depth alone does not.</td></tr>
+      <td>Depth-9 level-wise trees are the complexity analogue of LightGBM's 63 leaf-wise leaves. Row and column subsampling supply the stochastic regularisation depth alone does not.</td></tr>
   <tr><td><b>LightGBM</b></td>
       <td class="mono">n_estimators=300, learning_rate=0.10, num_leaves=63, reg_lambda=10.0, min_sum_hessian_in_leaf=20.0, colsample_bytree=0.8</td>
-      <td>63 leaves exploits leaf-wise growth without unbounded depth. <b><code>reg_lambda</code> and <code>min_sum_hessian_in_leaf</code> are jointly required for this model to converge at all.</b></td></tr>
-  <tr><td><b>LogisticRegression</b><br>(base)</td>
-      <td class="mono">C=1.0, max_iter=600, with StandardScaler</td>
-      <td>Default regularisation; the iteration cap raised until the multinomial solver converged on 24 scaled features.</td></tr>
-  <tr><td><b>LogisticRegression</b><br>(meta)</td>
-      <td class="mono">C=10.0, max_iter=1200</td>
-      <td>Weaker regularisation deliberately: the meta-learner's 150 inputs are already strongly constrained (six probability simplices), so the risk is underfitting the arbitration rule rather than overfitting it.</td></tr>
+      <td>63 leaves exploits leaf-wise growth without unbounded depth. <code>reg_lambda</code> and <code>min_sum_hessian_in_leaf</code> are jointly required for this model to converge at all.</td></tr>
+  <tr><td><b>LogisticRegression</b><br>(base / meta)</td>
+      <td class="mono">C=1.0, max_iter=600, scaled / C=10.0, max_iter=1200</td>
+      <td>Default regularisation as a base learner. Weaker regularisation as meta-learner deliberately: its 150 inputs are already strongly constrained (six probability simplices), so the risk is underfitting the arbitration rule rather than overfitting it.</td></tr>
 </table>
 
 <div class="callout alert">
   <h4>A diagnosed failure: divergence, not underfitting</h4>
-  <p>In the first complete run LightGBM scored <b>0.2541</b> and HistGradientBoosting
-  <b>0.8977</b>, against 0.9984 for a plain random forest. The intuitive reading &mdash;
-  underfitting, so add capacity &mdash; is wrong, and acting on it makes the problem worse.</p>
-  <p>An <code>n_estimators</code> sweep located the true behaviour: LightGBM's <em>training</em>
-  accuracy peaked at <b>0.9586 at 10 trees</b> and then <em>collapsed to 0.3468 by 50 trees</em>.
-  A model whose training accuracy falls as capacity rises is not underfitting; it is diverging.
-  Mean maximum predicted probability was 0.999999999997.</p>
-  <p><b>Mechanism.</b> Province is near-separable in these features, so the softmax saturates
-  within roughly ten boosting rounds. For multiclass log-loss the Hessian of an observation is
-  <i>p</i>(1&minus;<i>p</i>), which vanishes as <i>p</i>&nbsp;&rarr;&nbsp;1. Each leaf value is
-  computed as &minus;<i>g</i>/<i>h</i>; as the denominator collapses toward machine epsilon the
-  leaf values explode, and subsequent rounds fit the resulting numerical noise.</p>
-  <p style="margin-bottom:0"><b>Fix.</b> Bound the denominator. <code>l2_regularization=10.0</code>
-  adds &lambda; to <i>h</i> so the ratio stays finite, and <code>min_sum_hessian_in_leaf=20.0</code>
-  refuses to create leaves whose Hessian mass has already collapsed. Result:
-  <b>0.2541 &rarr; 0.9990</b> (LightGBM) and <b>0.8977 &rarr; 0.9994</b> (HistGradientBoosting).
-  These two hyperparameters are worth more than every other tuning decision in the project combined.</p>
+  <p style="margin-bottom:0">In the first complete run LightGBM scored <b>0.2541</b> and
+  HistGradientBoosting <b>0.8977</b>, against 0.9984 for a plain random forest. The
+  intuitive reading &mdash; underfitting, so add capacity &mdash; is wrong. An
+  <code>n_estimators</code> sweep found LightGBM's <em>training</em> accuracy peaking at
+  0.9586 at ten trees and then collapsing to 0.3468 by fifty: a model whose training
+  accuracy falls as capacity rises is diverging, not underfitting. The mechanism is that
+  district is near-separable in these features, so the softmax saturates within about ten
+  boosting rounds; the Hessian of an observation under multiclass log-loss is
+  <i>p</i>(1&minus;<i>p</i>), which vanishes as <i>p</i>&nbsp;&rarr;&nbsp;1, and since each
+  leaf value is &minus;<i>g</i>/<i>h</i> the leaf values explode as the denominator
+  collapses toward machine epsilon. The fix is to bound that denominator:
+  <code>l2_regularization=10.0</code> adds &lambda; to <i>h</i>, and
+  <code>min_sum_hessian_in_leaf=20.0</code> refuses leaves whose Hessian mass has already
+  collapsed. Result: <b>0.2541&nbsp;&rarr;&nbsp;0.9990</b> and
+  <b>0.8977&nbsp;&rarr;&nbsp;0.9994</b>. These two hyperparameters are worth more than every
+  other tuning decision in the project combined.</p>
 </div>
 
-<h3>3.4 &nbsp; Performance metrics and why these ones</h3>
-<table>
-  <tr><th style="width:24%">Metric</th><th>Why it is reported</th></tr>
-  <tr><td><b>Accuracy</b></td><td>The assignment's stated criterion. On its own it is misleading here: predicting only the six largest provinces would already score above 0.60.</td></tr>
-  <tr><td><b>Balanced accuracy</b></td><td>Mean per-class recall. Weights Vavuniya (0.12% of rows) equally with Colombo (18.64%), so a model that abandons rare districts cannot hide behind the headline figure.</td></tr>
-  <tr><td><b>Macro F1</b></td><td>Unweighted mean per-class F1. Unlike balanced accuracy it also penalises <em>over</em>-prediction of a rare class, catching the opposite failure mode.</td></tr>
-  <tr><td><b>Weighted F1</b></td><td>Support-weighted; reported alongside macro-F1 so the gap between them measures exactly how much of the performance is carried by the large classes.</td></tr>
-  <tr><td><b>Log loss</b></td><td>A proper scoring rule on the probabilities themselves, not on the arg-max. It is the metric that exposes the calibration problem discussed in §5.1 &mdash; and the metric on which the diverging boosters failed most visibly.</td></tr>
-  <tr><td><b>Confusion matrix</b><br>+ per-class report</td><td>Renders <em>which</em> districts are mistaken for which. Confusions here are overwhelmingly between geographically adjacent districts, which is the expected and interpretable error structure.</td></tr>
-  <tr><td><span class="footnote"><b>Not reported: ROC-AUC.</b> For 25 classes AUC requires a one-vs-rest or pairwise averaging scheme whose aggregate is dominated by the easy majority classes and is less interpretable here than per-class recall. Log loss serves the same purpose &mdash; assessing the probabilities rather than the decisions &mdash; without that averaging artefact.</span></td><td class="footnote"></td></tr>
-</table>
+<h3>3.3 &nbsp; Performance metrics</h3>
+<p>Five metrics are reported, because accuracy alone is misleading on a target where predicting
+only the six largest districts would already score above 0.60. <b>Balanced accuracy</b> (mean
+per-class recall) weights Vavuniya at 0.12% of rows equally with Colombo at 18.64%, so a model
+that abandons rare districts cannot hide behind the headline. <b>Macro F1</b> also penalises
+<em>over</em>-prediction of a rare class, and its gap from <b>weighted F1</b> measures how much
+performance is carried by the large classes. <b>Log loss</b> is a proper scoring rule on the
+probabilities rather than the arg-max, and is where the diverging boosters failed most visibly.
+A <b>confusion matrix</b> and per-class report show which districts are mistaken for which.
+ROC-AUC is not reported: over 25 classes it needs a one-vs-rest averaging scheme dominated by the
+easy majority classes, and log loss serves the same purpose without that artefact.</p>
 
-<h3>3.5 &nbsp; Results</h3>
+<h3>3.4 &nbsp; Results</h3>
 
-<h4>Headline: all learners, stratified random split, <code>full</code> feature set</h4>
+<h4>All learners, stratified random split, <code>full</code> feature set</h4>
 <table>
   <tr><th style="width:26%">Model</th><th class="num">Accuracy</th><th class="num">Balanced acc.</th><th class="num">Macro F1</th><th class="num">Weighted F1</th><th class="num">Log loss</th><th class="num">Fit (s)</th></tr>
   <tr><td>RandomForest</td><td class="num">0.9984</td><td class="num">0.9899</td><td class="num">0.9935</td><td class="num">0.9984</td><td class="num">0.0411</td><td class="num">4.9</td></tr>
@@ -484,15 +421,42 @@ values and their justifications:</p>
   <tr><td><b>Stacking</b> (ensemble)</td><td class="num best">0.9995</td><td class="num best">0.9975</td><td class="num best">0.9980</td><td class="num best">0.9995</td><td class="num">0.0029</td><td class="num">268.7</td></tr>
 </table>
 
-<p>Two observations. First, the ensemble does not beat its best single member on plain accuracy
-&mdash; XGBoost alone already reaches 0.9995, and on a near-saturated task there is no headroom
-left to recover. The ensemble's value here is <em>robustness</em>, which the harder protocols
-expose. Second, soft voting's log loss (0.0366) is an order of magnitude worse than stacking's
-(0.0029) at identical accuracy: averaging six probability vectors, two of which are poorly
-calibrated, produces a blurred consensus, whereas the meta-learner learns to discount them.</p>
+<p>The ensemble does not beat its best single member on plain accuracy &mdash; XGBoost alone
+already reaches 0.9995, and on a near-saturated task there is no headroom to recover. Its value
+here is robustness, which the harder protocols expose. Soft voting's log loss (0.0366) is also an
+order of magnitude worse than stacking's (0.0029) at identical accuracy: averaging six
+probability vectors, two of them poorly calibrated, blurs the consensus, whereas the meta-learner
+learns to discount them.</p>
 
-<h4>The three guards: is 0.9995 real, or memorised geography?</h4>
-<p>Province correlates strongly with latitude and longitude, so a sceptical reader should ask
+<h4>Is 0.9995 overfitting?</h4>
+<p>A score this high invites the suspicion that the model has memorised its training data, so
+the question was tested rather than argued. Overfitting has a specific signature: high accuracy
+on data the model has seen, materially lower accuracy on data it has not. Both sides were
+measured on the same split (<code>artifacts/overfitting_check.json</code>).</p>
+
+<table>
+  <tr><th style="width:34%">Model</th><th class="num">Train accuracy</th><th class="num">Test accuracy</th><th class="num">Gap</th></tr>
+  <tr><td>RandomForest</td><td class="num">0.9912</td><td class="num">0.9905</td><td class="num">+0.0007</td></tr>
+  <tr><td>ExtraTrees</td><td class="num">0.9655</td><td class="num">0.9639</td><td class="num">+0.0016</td></tr>
+  <tr><td>HistGradientBoosting</td><td class="num">0.9999</td><td class="num">0.9994</td><td class="num">+0.0006</td></tr>
+  <tr><td>XGBoost</td><td class="num">1.0000</td><td class="num">0.9995</td><td class="num">+0.0005</td></tr>
+  <tr><td>LightGBM</td><td class="num">0.9996</td><td class="num">0.9990</td><td class="num">+0.0006</td></tr>
+  <tr><td>LogisticRegression</td><td class="num">0.9668</td><td class="num">0.9661</td><td class="num">+0.0007</td></tr>
+  <tr><td><b>SoftVote</b></td><td class="num">0.9999</td><td class="num">0.9995</td><td class="num">+0.0005</td></tr>
+  <tr><td><b>Stacking</b></td><td class="num">1.0000</td><td class="num">0.9995</td><td class="num"><b>+0.0005</b></td></tr>
+</table>
+
+<p>The largest gap across all eight models is <b>0.16 percentage points</b> and the ensemble's
+is <b>0.05</b>. That is not memorisation: it says the task is genuinely easy, because district
+is close to a deterministic function of latitude and longitude. The high score is a property of
+the problem rather than an artefact of the model &mdash; and the real limitation lies elsewhere,
+in transfer to sites the model has never seen, which the next table
+quantifies.<span class="footnote"> Stacking's train figure feeds the meta-learner the base
+models' in-sample probabilities, more confident than the out-of-fold probabilities it was fitted
+on, so read it as an upper bound on its train-side optimism.</span></p>
+
+<h4>The three guards: is the score real, or memorised geography?</h4>
+<p>District correlates strongly with latitude and longitude, so a sceptical reader should ask
 whether the model has learned ecology or is performing a point-in-polygon lookup. Three
 independent guards test this, each removing a different crutch.</p>
 
@@ -500,7 +464,7 @@ independent guards test this, each removing a different crutch.</p>
   <tr><th style="width:15%">Feature set</th><th style="width:15%">Protocol</th><th style="width:30%">What the guard removes</th><th class="num">Accuracy</th><th class="num">Balanced acc.</th><th class="num">Macro F1</th></tr>
   <tr><td><code>full</code></td><td>random</td><td>Nothing &mdash; the conventional baseline</td>
       <td class="num best">0.9995</td><td class="num">0.9975</td><td class="num">0.9980</td></tr>
-  <tr><td><code>full</code></td><td><b>grouped</b></td><td>Every test <em>site</em> is unseen in training (<code>GroupShuffleSplit</code> on rounded lat/lon)</td>
+  <tr><td><code>full</code></td><td><b>grouped</b></td><td>Every test <em>site</em> is unseen in training</td>
       <td class="num best">0.9925</td><td class="num">0.9910</td><td class="num">0.9882</td></tr>
   <tr><td><code>envonly</code></td><td>random</td><td>Latitude and longitude dropped entirely</td>
       <td class="num best">0.9971</td><td class="num">0.9932</td><td class="num">0.9942</td></tr>
@@ -511,240 +475,181 @@ independent guards test this, each removing a different crutch.</p>
 <div class="callout">
   <h4>Reading the gap honestly</h4>
   <p style="margin-bottom:0">Each guard alone costs little: withholding seen sites costs 0.7
-  percentage points, removing coordinates costs 0.2. Applying both costs <b>9.6 points</b>, and
+  percentage points, removing coordinates 0.2. Applying both costs <b>9.6 points</b>, and
   <b>0.9032 falls below the assignment's 95% threshold</b>. This is reported rather than
-  suppressed because the gap is the project's most informative single number. It says that a
-  substantial part of the headline accuracy comes from recognising <em>a specific site's</em>
-  environmental fingerprint &mdash; the exact NDVI, elevation and aerosol signature of a place
-  the model has seen before &mdash; and not purely from generalisable habitat character. The
-  honest claim this work supports is therefore: <b>0.9995 for validating records from
-  already-surveyed sites, and roughly 0.90 for a genuinely new location with no coordinates</b>.
-  Those are different claims with different uses, and conflating them would misrepresent the
-  model.</p>
+  suppressed because the gap is the project's most informative single number. It says a
+  substantial part of the headline comes from recognising <em>a specific site's</em>
+  environmental fingerprint &mdash; the exact NDVI, elevation and aerosol signature of a
+  place the model has seen before &mdash; and not purely from generalisable habitat
+  character. The honest claim this work supports is therefore: <b>0.9995 for validating
+  records from already-surveyed sites, and roughly 0.90 for a genuinely new location with no
+  coordinates</b>. Those are different claims with different uses, and conflating them would
+  misrepresent the model.</p>
 </div>
 
-<p>The <code>envonly</code> + grouped condition is also where the ensemble finally earns its
-keep: the best single model reaches 0.9008 (LightGBM) while soft voting reaches 0.9032 and
-stacking attains the best balanced accuracy (0.8637) and macro-F1 (0.8740). When the problem
-stops being saturated, combining decorrelated learners starts to pay.</p>
-
-<h4>Per-class behaviour</h4>
-<p>Under the random protocol per-class recall remains high across the full imbalance range:
-Colombo (14,038 test rows) attains 1.000, and the rarest district, Vavuniya (84 test rows),
-attains 0.988. The confusion matrix is near-diagonal, and such off-diagonal mass as exists sits
-between geographically adjacent districts &mdash; Colombo/Gampaha, Galle/Matara &mdash; which is
-the interpretable and expected error structure for a provenance model. The caveat on these
-rare-class estimates is quantified in §5.3.</p>
+<p>That hardest condition is also where the ensemble earns its keep: the best single model
+reaches 0.9008 (LightGBM) while soft voting reaches 0.9032 and stacking attains the best
+balanced accuracy (0.8637) and macro-F1 (0.8740) &mdash; once the problem stops being saturated,
+combining decorrelated learners pays. Per-class behaviour under the random protocol holds across
+the full imbalance range, with Colombo (14,038 test rows) at recall 1.000 and the rarest
+district, Vavuniya (84 test rows), at 0.988. The confusion matrix is near-diagonal, and such
+off-diagonal mass as exists sits between geographically adjacent districts (Colombo/Gampaha,
+Galle/Matara) &mdash; the interpretable error structure for a provenance model.</p>
 
 <!-- ============================================ 4 -->
-<h2 class="pagebreak">4 &nbsp; Explainability and Interpretation</h2>
+<h2>4 &nbsp; Explainability and Interpretation</h2>
 
-<p>Three explainability methods were applied (<code>src/explain.py</code>), chosen so that they
-<em>cross-check</em> rather than merely corroborate one another. The explained model is
-<b>LightGBM</b>: TreeSHAP is exact and tractable on it, it scores 0.9990 alone &mdash; within
-0.0005 of the full ensemble &mdash; and since the meta-learner is a linear reweighting of base
-probabilities, the base model's attributions are the substantive explanation of the ensemble's
-behaviour. All figures are computed on 6,000 held-out test rows the model never saw.</p>
-
-<table>
-  <tr><th style="width:24%">Method</th><th style="width:20%">Type</th><th>What it answers</th></tr>
-  <tr><td><b>TreeSHAP</b></td><td>Local &rarr; global, exact</td>
-      <td>Shapley values from cooperative game theory: the unique attribution satisfying local accuracy, missingness and consistency. Gives a signed contribution per feature <em>per prediction</em>.</td></tr>
-  <tr><td><b>Permutation importance</b></td><td>Global, model-agnostic</td>
-      <td>The drop in held-out accuracy when one column is shuffled. Measures what the <em>fitted</em> model actually relies on.</td></tr>
-  <tr><td><b>Partial dependence</b></td><td>Global, marginal</td>
-      <td>The average predicted probability as one feature is swept across its range &mdash; the <em>direction and shape</em> of an effect, not just its magnitude.</td></tr>
-</table>
+<p>Three methods were applied (<code>src/explain.py</code>), chosen so they <em>cross-check</em>
+rather than merely corroborate one another: <b>TreeSHAP</b>, giving exact Shapley values and so a
+signed contribution per feature per prediction; <b>permutation importance</b>, the drop in
+held-out accuracy when one column is shuffled, which measures what the fitted model actually
+relies on; and <b>partial dependence</b>, the average predicted probability as one feature is
+swept, which gives the direction and shape of an effect rather than its magnitude. The explained
+model is <b>LightGBM</b>: TreeSHAP is exact and tractable on it, it scores 0.9990 alone &mdash;
+within 0.0005 of the full ensemble &mdash; and since the meta-learner is a linear reweighting of
+base probabilities, its attributions are the substantive explanation of the ensemble's behaviour.
+All figures use 6,000 held-out test rows the model never saw.</p>
 
 <h3>4.1 &nbsp; Which features are most influential</h3>
 
 <figure>
   <img src="06_shap_global.png" alt="Global SHAP importance">
-  <figcaption><b>Figure 1.</b> Mean |SHAP value| per feature, averaged over all 25 provinces and
-  6,000 held-out observations. Latitude and longitude lead, but together account for 49.2% of
-  total attributed importance &mdash; elevation, population density, SO<sub>2</sub>, night-time
-  radiance and mean temperature carry a substantial remainder.</figcaption>
+  <figcaption><b>Figure 1.</b> Mean |SHAP value| per feature, averaged over all 25 districts
+  and 6,000 held-out observations. Latitude and longitude lead, but together account for
+  49.2% of total attributed importance &mdash; elevation, population density,
+  SO<sub>2</sub>, night-time radiance and mean temperature carry a substantial
+  remainder.</figcaption>
 </figure>
 
-<h3>4.2 &nbsp; Three methods disagree &mdash; and the disagreement is the finding</h3>
+<h3>4.2 &nbsp; What the model has learned, and whether it matches domain knowledge</h3>
 
-<figure>
-  <img src="10_importance_methods.png" alt="Impurity vs permutation vs SHAP importance">
-  <figcaption><b>Figure 2.</b> The same model ranked by three importance methods. All three agree
-  on the top two features and on the overall ordering, but they disagree sharply on
-  <em>magnitude</em>: the combined share attributed to latitude and longitude is
-  <b>39.4%</b> by impurity, <b>49.2%</b> by SHAP and <b>97.9%</b> by permutation.</figcaption>
-</figure>
-
-<p>A 2.5-fold disagreement between methods applied to one fitted model demands an explanation,
-and the explanation is instructive:</p>
-<ul>
-  <li><b>Impurity importance (39.4%) under-credits the coordinates.</b> It counts total
-  impurity reduction, which is spread across many shallow splits; it is also known to inflate
-  high-cardinality continuous features in general, so its <em>relative</em> ordering of the
-  low-importance tail should not be trusted.</li>
-  <li><b>Permutation importance (97.9%) over-credits them, because the features are mutually
-  redundant.</b> Shuffling <code>elevation</code> barely moves accuracy &mdash; not because
-  elevation is uninformative, but because latitude and longitude remain in the matrix and the
-  fitted trees can route around the damaged column. Shuffling latitude, by contrast, destroys
-  the key on which every environmental covariate was originally joined. Permutation importance
-  measures <em>marginal</em> contribution given everything else present, and under strong
-  redundancy that systematically under-states every redundant feature.</li>
-  <li><b>SHAP (49.2%) distributes credit among correlated features</b> rather than awarding it
-  to whichever one the tree happened to split on first, which is why it sits between the two.</li>
-</ul>
-
-<div class="callout">
-  <h4>The ablation settles it</h4>
-  <p style="margin-bottom:0">Permutation importance implies the environmental features are nearly
-  worthless (2.1% combined). The <code>envonly</code> experiment in §3.5 refutes that directly:
-  <b>retrained without latitude and longitude at all, the ensemble still reaches 0.9971</b>. Both
-  results are correct because they answer different questions. Permutation asks <i>"what does
-  this already-fitted model lean on?"</i> &mdash; answer: the coordinates. The ablation asks
-  <i>"what is recoverable if the model must do without them?"</i> &mdash; answer: almost
-  everything, because the environmental layer encodes location by construction. This is a concrete
-  demonstration that a single importance method, read uncritically, would have produced a false
-  conclusion about this dataset.</p>
-</div>
-
-<h3>4.3 &nbsp; What the model has learned</h3>
+<p>Figure 2 overleaf makes the learned rules legible. <b>Elevation</b> dominates and the separation is
+almost total: high elevation (red) pushes strongly toward Nuwara Eliya, low elevation (blue)
+pushes away. <b>Mean temperature</b> runs the other way, low values raising the probability, and
+<b>sea-salt aerosol</b> shows the same inversion. <b>Population density</b> and <b>night-time
+radiance</b> contribute weakly and negatively at high values. Feature ranking is near-identical
+under the random and grouped protocols, so these are properties of the fitted model rather than
+of one split.</p>
 
 <figure class="wide">
   <img src="07_shap_beeswarm.png" alt="SHAP beeswarm for Nuwara Eliya">
-  <figcaption><b>Figure 3.</b> Per-observation SHAP values for the class <i>Nuwara&nbsp;Eliya</i>.
-  Each point is one held-out observation; horizontal position is that feature's signed
-  contribution to the province's log-odds, colour is the feature's own value (blue&nbsp;=&nbsp;low,
-  red&nbsp;=&nbsp;high).</figcaption>
+  <figcaption><b>Figure 2.</b> Per-observation SHAP values for the class
+  <i>Nuwara&nbsp;Eliya</i>. Each point is one held-out observation; horizontal position is
+  that feature's signed contribution to the district's log-odds, colour is the feature's own
+  value (blue&nbsp;=&nbsp;low, red&nbsp;=&nbsp;high). The dataset stores this district as
+  <code>Nuwara</code>, truncated &mdash; a data-quality item noted in &sect;5.2.</figcaption>
 </figure>
 
-<p class="footnote" style="margin-top:-4px">Note on the label: the dataset stores this district as
-<code>Nuwara</code>, truncated from its full name <i>Nuwara&nbsp;Eliya</i>; the figures show the raw
-class label and the text uses the full name. The truncation is noted as a data-quality item in §5.2.</p>
+<p>This aligns closely with domain knowledge, the strongest available evidence that the model has
+learned geography rather than an arbitrary high-dimensional shortcut. Nuwara Eliya is Sri Lanka's
+highest district, in the central highlands around 1,800&nbsp;m: the coldest inhabited part of the
+country, landlocked, rural tea country rather than a conurbation. The model independently learned
+exactly that conjunction. The inverse temperature relationship is a rediscovery of the
+environmental lapse rate from data, and the sea-salt signal is a genuinely subtle proxy &mdash;
+marine aerosol falls with distance inland, so the model is using atmospheric chemistry to infer
+that a location is far from the coast.</p>
 
-<p>Figure 3 is the clearest statement of what the model learned, because the colour gradients make
-the learned rules directly legible:</p>
-<ul>
-  <li><b>Elevation</b> is the dominant driver, and the separation is almost total: high elevation
-  (red) pushes strongly toward Nuwara Eliya, low elevation (blue) pushes away. </li>
-  <li><b>Mean temperature</b> runs the other way &mdash; <em>low</em> values (blue) raise the
-  probability.</li>
-  <li><b>Sea-salt aerosol</b> shows the same inversion: low marine aerosol raises the probability.</li>
-  <li><b>Population density</b> and <b>night-time radiance</b> contribute weakly and negatively at
-  high values.</li>
-</ul>
-
-<p>Feature ranking is near-identical under the random and grouped protocols, so these are
-properties of the fitted model rather than of one particular split.</p>
-
-<h3>4.4 &nbsp; Does this align with domain knowledge?</h3>
-
-<p>It does, closely &mdash; and this is the strongest available evidence that the model has learned
-geography rather than an arbitrary high-dimensional shortcut.</p>
-
-<p><b>Nuwara Eliya</b> is Sri Lanka's highest district, sitting in the central highlands around
-1,800&nbsp;m. It is the coldest inhabited part of the country, it is landlocked, and it is rural
-tea country rather than a conurbation. The model independently learned exactly this conjunction:
-<em>high elevation, low temperature, low marine aerosol, low population density and low night-time
-light</em>. The inverse temperature relationship is a rediscovery of the environmental lapse rate
-from data, and the sea-salt signal is a genuinely subtle proxy &mdash; marine aerosol concentration
-falls with distance inland, so the model is using atmospheric chemistry to infer that a location
-is far from the coast.</p>
-
-<table>
-  <tr><th style="width:17%">District</th><th style="width:40%">Top SHAP drivers (direction)</th><th>Physical geography</th></tr>
-  <tr><td><b>Nuwara Eliya</b></td><td>elevation ↑, longitude ↑, latitude ↑, mean temp ↑<span class="footnote"> (low values raise)</span></td>
+<table class="split">
+  <tr><th style="width:17%">District</th><th style="width:40%">Top SHAP drivers</th><th>Physical geography</th></tr>
+  <tr><td><b>Nuwara Eliya</b></td><td>elevation, longitude, latitude, mean temp<span class="footnote"> (low values raise)</span></td>
       <td>Central highlands, ~1,800&nbsp;m, coldest district, landlocked. <b>Consistent.</b></td></tr>
-  <tr><td><b>Colombo</b></td><td>latitude ↑, longitude ↑, SO<sub>2</sub> ↑, night lights ↑</td>
-      <td>The commercial capital. SO<sub>2</sub> and night-time radiance are precisely the signatures of a dense, traffic- and industry-heavy coastal city. <b>Consistent.</b></td></tr>
-  <tr><td><b>Kandy</b></td><td>elevation ↑, latitude ↑, longitude ↑, dust aerosol ↑</td>
-      <td>Mid-elevation hill country (~500&nbsp;m); elevation again leads, at a lower threshold than Nuwara Eliya. <b>Consistent.</b></td></tr>
-  <tr><td><b>Jaffna</b></td><td>longitude ↑, latitude ↑, carbon aerosol ↑, solar radiation ↑</td>
+  <tr><td><b>Colombo</b></td><td>latitude, longitude, SO<sub>2</sub>, night lights</td>
+      <td>The commercial capital &mdash; SO<sub>2</sub> and night-time radiance are precisely the signatures of a dense, traffic- and industry-heavy coastal city. <b>Consistent.</b></td></tr>
+  <tr><td><b>Kandy</b></td><td>elevation, latitude, longitude, dust aerosol</td>
+      <td>Mid-elevation hill country (~500&nbsp;m); elevation leads again, at a lower threshold than Nuwara Eliya. <b>Consistent.</b></td></tr>
+  <tr><td><b>Jaffna</b></td><td>longitude, latitude, carbon aerosol, solar radiation</td>
       <td>Northern peninsula; dry-zone, high-insolation, minimal relief &mdash; so the model leans on radiation and aerosol rather than terrain. <b>Consistent.</b></td></tr>
-  <tr><td><b>Mannar</b></td><td>longitude ↑, latitude ↑, elevation ↑, NDVI ↑</td>
-      <td>Arid north-west coast; low NDVI distinguishes its sparse scrub from the wet-zone forest. <b>Consistent.</b></td></tr>
+  <tr><td><b>Mannar</b></td><td>longitude, latitude, elevation, NDVI</td>
+      <td>Arid north-west coast; low NDVI distinguishes sparse scrub from wet-zone forest. <b>Consistent.</b></td></tr>
 </table>
 
 <p>A pattern worth noting: <b>districts with strong relief are identified by terrain, and
-districts without it are identified by atmosphere.</b> The model has, in effect, learned a
-different diagnostic rule per region, which is what a trained field ecologist would do and
-is a capability a single global linear model could not express.</p>
+districts without it are identified by atmosphere.</b> The model has in effect learned a
+different diagnostic rule per region, which is what a trained field ecologist would do and is
+a capability a single global linear model could not express.</p>
 
-<h3>4.5 &nbsp; A single prediction, explained end to end</h3>
+<h3>4.3 &nbsp; Three methods disagree &mdash; and the disagreement is the finding</h3>
 
-<figure class="wide">
-  <img src="08_shap_waterfall.png" alt="SHAP waterfall for one prediction">
-  <figcaption><b>Figure 4.</b> One held-out observation, correctly classified as <i>Matara</i>.
-  The waterfall decomposes the prediction from the base rate <i>E</i>[<i>f</i>(x)]&nbsp;=&nbsp;&minus;6.837
-  to the final log-odds <i>f</i>(x)&nbsp;=&nbsp;2.454, attributing every unit of that movement to a feature.</figcaption>
+<figure>
+  <img src="10_importance_methods.png" alt="Impurity vs permutation vs SHAP importance">
+  <figcaption><b>Figure 3.</b> The same fitted model ranked by three importance methods. All
+  three agree on the top two features and on the overall ordering, but disagree sharply on
+  <em>magnitude</em>: the combined share attributed to latitude and longitude is <b>39.4%</b>
+  by impurity, <b>49.2%</b> by SHAP and <b>97.9%</b> by permutation.</figcaption>
 </figure>
 
-<p>The record sits at latitude 5.999&deg;N, longitude 80.427&deg;E, 9&nbsp;m above sea level.
-Latitude alone contributes <b>+7.66</b> to the log-odds and longitude a further <b>+1.28</b>;
-together they move the prediction from strongly-against to strongly-for. This is correct
-behaviour and good geography &mdash; 5.999&deg;N is the southern tip of Sri Lanka, and Matara is
-the southernmost district &mdash; but it also makes the §3.5 caveat concrete at the level of an
-individual decision: for a record from a known locality, the coordinates dominate, and the
-environmental covariates (SO<sub>2</sub> +0.32, sea salt +0.21, elevation &minus;0.13) refine a
-decision the coordinates have already substantially made. The nine-metre elevation and
-non-trivial sea-salt contribution are consistent with a coastal site.</p>
+<p>A 2.5-fold disagreement between methods applied to one fitted model demands an explanation.
+<b>Impurity importance (39.4%) under-credits the coordinates</b>: it counts total impurity
+reduction spread across many shallow splits, and is known to inflate high-cardinality continuous
+features in general, so the ordering of its low-importance tail should not be trusted.
+<b>Permutation importance (97.9%) over-credits them, because the features are mutually
+redundant</b>: shuffling elevation barely moves accuracy, not because elevation is uninformative
+but because latitude and longitude remain in the matrix and the trees can route around the
+damaged column &mdash; whereas shuffling latitude destroys the key on which every environmental
+covariate was originally joined. <b>SHAP (49.2%) distributes credit among correlated
+features</b> rather than awarding it to whichever one the tree split on first, which is why it
+sits between the two.</p>
 
-<h3>4.6 &nbsp; Partial dependence, and a caveat it exposes</h3>
+<div class="callout">
+  <h4>The ablation settles it</h4>
+  <p style="margin-bottom:0">Permutation importance implies the environmental features are
+  nearly worthless &mdash; 2.1% combined. The <code>envonly</code> experiment of &sect;3.4
+  refutes that directly: <b>retrained without latitude and longitude at all, the ensemble
+  still reaches 0.9971</b>. Both results are correct, because they answer different questions.
+  Permutation asks <i>"what does this already-fitted model lean on?"</i> &mdash; the
+  coordinates. The ablation asks <i>"what is recoverable if the model must do without
+  them?"</i> &mdash; almost everything, because the environmental layer encodes location by
+  construction. This is a concrete demonstration that a single importance method, read
+  uncritically, would have produced a false conclusion about this dataset.</p>
+</div>
 
 <figure>
   <img src="09_pdp.png" alt="Partial dependence plots">
-  <figcaption><b>Figure 5.</b> Partial dependence of the four highest-SHAP features for two
-  contrasting districts. The latitude and longitude panels are sharply peaked at the correct
-  true locations; the elevation and population-density panels are almost flat, for the reason
+  <figcaption><b>Figure 4.</b> Partial dependence of the four highest-SHAP features for two
+  contrasting districts. The coordinate panels are sharply peaked at the correct true
+  locations; the elevation and population-density panels are almost flat, for the reason
   discussed below.</figcaption>
 </figure>
 
-<p>The coordinate panels validate the model precisely. Colombo's latitude response spikes at
-approximately <b>6.9&deg;N</b> &mdash; the city's true latitude is 6.93&deg;N &mdash; and its
-longitude response is highest at the western edge of the sweep near <b>79.9&deg;E</b>, against a
-true 79.86&deg;E. Nuwara Eliya's longitude response peaks near <b>80.7&ndash;80.8&deg;E</b>,
-against a true 80.77&deg;E. The model has recovered the actual coordinates of both districts to
-within a few hundredths of a degree, from data alone.</p>
-
-<p>The flat elevation and population-density panels are not a null result but a <b>methodological
-artefact worth stating</b>, since it is the kind of thing a partial-dependence plot can quietly
-mislead about. PDP computes a marginal expectation, holding one feature at a swept value while
-averaging over the empirical distribution of all others. When elevation is swept to 1,000&nbsp;m,
-latitude and longitude retain their original lowland values &mdash; so the plot averages over
-physically impossible records such as "1,000&nbsp;m elevation at a coastal coordinate". Because
-elevation is a deterministic function of location in this dataset, the independence assumption
-underlying PDP is violated outright, and the resulting curve understates a real effect that
-Figure 3 shows clearly. <b>The correct reading is that PDP is the wrong instrument for a feature
-set with deterministic internal dependencies, and SHAP &mdash; which conditions on the actual
-observation &mdash; is the right one.</b> Accumulated Local Effects plots would be the
-appropriate remedy and are noted in §5.5.</p>
+<p>The coordinate panels validate the model precisely: Colombo's latitude response spikes at
+approximately <b>6.9&deg;N</b> against a true 6.93&deg;N, and Nuwara Eliya's longitude response
+peaks near <b>80.7&ndash;80.8&deg;E</b> against a true 80.77&deg;E. The model has recovered the
+actual coordinates of both districts to within hundredths of a degree, from data alone. The flat
+elevation and population-density panels, by contrast, are a <b>methodological artefact worth
+stating</b>: partial dependence holds one feature at a swept value while averaging over the
+empirical distribution of all others, so sweeping elevation to 1,000&nbsp;m while latitude and
+longitude keep their lowland values averages over physically impossible records. Because
+elevation is a deterministic function of location here, PDP's independence assumption is violated
+outright and the curve understates a real effect Figure 2 shows clearly. PDP is the wrong
+instrument for a feature set with deterministic internal dependencies; SHAP, which conditions on
+the actual observation, is the right one, and Accumulated Local Effects plots would be the
+appropriate remedy.</p>
 
 <!-- ============================================ 5 -->
-<h2 class="pagebreak">5 &nbsp; Critical Discussion</h2>
+<h2>5 &nbsp; Critical Discussion</h2>
 
 <h3>5.1 &nbsp; Limitations of the model</h3>
 <ul>
   <li><b>Generalisation to new locations is materially weaker than the headline suggests.</b>
-  The honest number for an unvisited site without coordinates is <b>0.9032</b>, not 0.9995 &mdash;
-  a 9.6-point drop, and below the assignment's threshold. This is the single most important
-  limitation and §3.5 states it in full.</li>
-  <li><b>Hyperparameters were hand-set, not searched.</b> No Optuna, grid or random search was run;
-  values were chosen from published defaults and adjusted by targeted diagnosis. The divergence fix
-  in §3.3 shows that reasoning about the failure mode can beat blind search, but it does not
-  demonstrate that the current values are optimal, and no claim of optimality is made.</li>
+  The honest number for an unvisited site without coordinates is <b>0.9032</b>, not 0.9995
+  &mdash; a 9.6-point drop, and below the assignment's threshold. This is the single most
+  important limitation.</li>
+  <li><b>Hyperparameters were hand-set, not searched.</b> Values came from published defaults
+  adjusted by targeted diagnosis. The divergence fix in &sect;3.2 shows reasoning about a failure
+  mode can beat blind search, but it does not demonstrate the current values are optimal, and no
+  claim of optimality is made.</li>
   <li><b>The probabilities are badly calibrated.</b> The boosters saturate &mdash; mean maximum
   predicted probability exceeded 0.9999 even after regularisation. Rankings are reliable; the
-  numbers the application displays as confidence are not, and a user should read "97%" as "most
-  likely" rather than as a frequency. The model is accurate but overconfident, which is the more
-  dangerous of the two failure modes because it is invisible to accuracy-based evaluation.</li>
+  numbers the application displays as confidence are not, and "97%" should be read as "most
+  likely" rather than as a frequency. Accurate but overconfident is the more dangerous failure
+  mode, because it is invisible to accuracy-based evaluation.</li>
   <li><b>Training used a 300,000-row sample</b> (19% of the corpus), a memory constraint rather
   than a methodological choice. The headline metrics are insensitive to it, but the rarest
-  provinces are exactly where the remaining 1.25&nbsp;M rows would matter most.</li>
-  <li><b>The model is static.</b> It is trained on 2014&ndash;2024 covariates. Land cover,
-  night-time lights and population density all drift; a model deployed unchanged would decay,
-  and nothing in the current setup monitors that.</li>
-  <li><b>Twenty-five classes, closed-world.</b> The model must assign one of 25 districts and
-  cannot say "none of these" or "outside Sri Lanka". An out-of-distribution input receives a
-  confident and meaningless answer.</li>
+  districts are where the remaining 1.25&nbsp;M rows would matter most.</li>
+  <li><b>The model is static and closed-world.</b> Land cover, night-time lights and population
+  density all drift, so a model deployed unchanged would decay with nothing monitoring it. It
+  must also assign one of 25 districts and cannot say "none of these": an out-of-distribution
+  input receives a confident and meaningless answer.</li>
 </ul>
 
 <h3>5.2 &nbsp; Data quality issues</h3>
@@ -753,227 +658,159 @@ appropriate remedy and are noted in §5.5.</p>
   roads, cities and well-known birding sites. Colombo contributes 18.64% of all records and
   Vavuniya 0.12%. This reflects observer distribution, not bird distribution.</li>
   <li><b>Environmental features are derived, not measured.</b> Every covariate comes from a
-  gridded product with its own resolution and error. At a nominal 1&nbsp;km grid, records within
-  the same cell receive identical values regardless of true micro-habitat &mdash; which is
-  precisely the mechanism behind the 5.54% species ceiling.</li>
-  <li><b>Several aerosol columns are zero for many records</b> (visible in Figure 4, where
-  SO<sub>2</sub>, sea salt and sulfate all read 0). Whether these are true zeros, below-detection
-  values or join failures is not documented upstream, and the models treat them as exact zeros.</li>
+  gridded product with its own resolution and error; at a nominal 1&nbsp;km grid, records in the
+  same cell receive identical values regardless of true micro-habitat &mdash; precisely the
+  mechanism behind the 5.54% species ceiling.</li>
+  <li><b>Several aerosol columns read zero for many records</b>, and whether these are true
+  zeros, below-detection values or join failures is undocumented upstream. The models treat them
+  as exact zeros.</li>
   <li><b>No verification status.</b> Citizen-science records vary in reliability and the dataset
-  carries no identification-confidence or validation flag, so misidentified or mis-georeferenced
-  records cannot be filtered.</li>
+  carries no identification-confidence flag, so misidentified or mis-georeferenced records cannot
+  be filtered.</li>
   <li><b>The administrative field is labelled <code>stateProvince</code> but contains 25
-  districts</b>, not Sri Lanka's 9 provinces. Documented here so the result is not misread as
-  provincial-level classification.</li>
-  <li><b>At least one class label is truncated.</b> <i>Nuwara Eliya</i> is stored as
-  <code>Nuwara</code>, and <i>Kegalle</i> appears as <code>Kegalla</code>. These are cosmetic for
-  modelling &mdash; the classes remain distinct and consistently labelled &mdash; but they indicate
-  the administrative field was not validated against a controlled vocabulary upstream, which matters
-  for anyone joining this dataset to an official district gazetteer.</li>
+  districts</b>, not Sri Lanka's 9 provinces, and at least two class labels are truncated
+  &mdash; <i>Nuwara Eliya</i> stored as <code>Nuwara</code>, <i>Kegalle</i> as
+  <code>Kegalla</code>. Both are cosmetic for modelling, since the classes remain distinct and
+  consistently labelled, but they indicate the field was not validated against a controlled
+  vocabulary upstream, which matters for anyone joining this dataset to an official
+  gazetteer.</li>
 </ul>
 
 <h3>5.3 &nbsp; Risks of bias and unfairness</h3>
 <p>The headline metrics conceal a real asymmetry in who the model serves well.</p>
 <ul>
   <li><b>Evidential inequality.</b> Recall for Colombo (14,038 test rows) is estimated at 1.000
-  with a 95% Wilson interval of width &lt;0.001. Recall for Vavuniya (84 test rows) is 0.988 with
-  an interval of <b>[0.936, 0.998]</b> &mdash; sixty times wider. The point estimates look
+  with a 95% Wilson interval narrower than 0.001. Recall for Vavuniya (84 test rows) is 0.988
+  with an interval of <b>[0.936, 0.998]</b> &mdash; sixty times wider. The point estimates look
   comparable; the <em>confidence</em> in them is not. It would be misleading to claim equal
   performance across districts when the evidence base differs by two orders of magnitude.</li>
   <li><b>The bias tracks a social fault line.</b> The under-represented districts &mdash;
   Vavuniya, Mullaittivu, Kilinochchi, Batticaloa &mdash; are concentrated in the Northern and
-  Eastern Provinces, the regions most affected by the civil war and subsequent under-investment.
-  Sparse recording there reflects decades of restricted access and fewer resourced observers. A
+  Eastern Provinces, the regions most affected by the civil war and subsequent under-investment,
+  where sparse recording reflects decades of restricted access and fewer resourced observers. A
   model trained on this data inherits that history and, if used to allocate attention or funding,
-  risks reproducing it: regions that were under-recorded appear less certain, attract less
-  confidence, and so may attract less support &mdash; a feedback loop in which the data gap
-  justifies its own persistence.</li>
+  risks reproducing it: under-recorded regions appear less certain, attract less confidence, and
+  so may attract less support &mdash; a feedback loop in which the data gap justifies its own
+  persistence.</li>
   <li><b>Degradation falls unevenly.</b> Under the hardest protocol balanced accuracy (0.8576)
-  trails plain accuracy (0.9032) by 4.6 points, and macro-F1 trails weighted F1 by 3.5 points.
-  Both gaps quantify the same thing: the loss is concentrated in the small classes, which are
-  the northern and eastern districts.</li>
-  <li><b>Automation bias in deployment.</b> Presented as a clean percentage in a web
-  application, an overconfident prediction (§5.1) invites users to defer to it. The risk is
-  highest for exactly the records most worth reviewing &mdash; unusual ones from under-recorded
-  districts.</li>
+  trails plain accuracy (0.9032) by 4.6 points and macro-F1 trails weighted F1 by 3.5. The loss
+  concentrates in the small classes, which are the northern and eastern districts.</li>
+  <li><b>Automation bias in deployment.</b> Presented as a clean percentage in a web application,
+  an overconfident prediction invites users to defer to it &mdash; and the risk is highest for
+  exactly the records most worth reviewing, unusual ones from under-recorded districts.</li>
 </ul>
 
 <h3>5.4 &nbsp; Real-world impact and ethical considerations</h3>
-<p><b>Potential benefits.</b> Used as a flagging tool rather than an authority, the model offers
-genuine value: automated georeferencing-error detection across national biodiversity databases,
-provenance inference for digitised historical records, and &mdash; via the <code>envonly</code>
-ablation &mdash; a quantitative measure of each district's environmental distinctiveness that
-could inform conservation prioritisation.</p>
+<p><b>Potential benefits.</b> Used as a flagging tool rather than an authority, the model
+offers genuine value: automated georeferencing-error detection across national biodiversity
+databases, provenance inference for digitised historical records, and &mdash; via the
+<code>envonly</code> ablation &mdash; a quantitative measure of each district's environmental
+distinctiveness that could inform conservation prioritisation.</p>
 
-<p><b>Risks requiring active management.</b></p>
-<ul>
-  <li><b>Misuse for locality inference.</b> A model that infers provenance from environmental
-  covariates could in principle help reconstruct the locality of a record whose coordinates were
-  deliberately generalised to protect a threatened species. The current model predicts only a
-  district, which is far too coarse to assist poaching, but the capability direction is worth
-  naming explicitly rather than discovering later.</li>
-  <li><b>Overriding human expertise.</b> If a model disagreeing with a recorded district were
-  permitted to auto-correct records, systematic model error would be written into the permanent
-  scientific record, and the regions with least data would be corrected most often. Any
-  deployment must flag for human review, never overwrite.</li>
-  <li><b>Misrepresentation of capability.</b> Quoting 99.95% without the 90.32% caveat would be
-  the most likely real-world harm arising from this work, since it would lead users to trust the
-  model in precisely the setting &mdash; a new, unsurveyed location &mdash; where it is weakest.
-  Both figures are reported together throughout this report and in the application interface.</li>
-  <li><b>Environmental cost.</b> Modest but non-zero: the full experimental programme is roughly
-  one hour of multi-core CPU, with no GPU training. The design choice to use histogram boosting
-  over deep learning reduced this by a large factor.</li>
-</ul>
+<p><b>Risks requiring active management.</b> A model inferring provenance from environmental
+covariates could in principle help reconstruct the locality of a record whose coordinates were
+deliberately generalised to protect a threatened species; a district is far too coarse to assist
+poaching, but the capability direction is worth naming rather than discovering later. If such a
+model were permitted to auto-correct records, systematic error would be written into the
+permanent scientific record and the regions with least data would be corrected most often, so
+any deployment must flag for human review and never overwrite. Quoting 99.95% without the 90.32%
+caveat would be the most likely real-world harm arising from this work, since it would lead users
+to trust the model in precisely the setting where it is weakest; both figures appear together
+throughout this report and in the application. The environmental cost is modest: roughly one hour
+of multi-core CPU for the full programme, with no GPU training.</p>
 
 <p><b>Responsible-use statement.</b> This model is appropriate as a decision-support tool that
-flags records for expert review, and is not appropriate as an automated authority on record
-provenance, as a basis for resource allocation between districts without explicit correction for
-sampling bias, or for any inference about threatened-species localities.</p>
-
-<h3>5.5 &nbsp; What I would improve, in order of expected impact</h3>
-<ol>
-  <li><b>Close the 90.32% gap.</b> Spatial <em>block</em> cross-validation (contiguous
-  geographic blocks rather than point-level groups) would give a stricter and more realistic
-  estimate, and features that vary <em>within</em> a site rather than being constant per site
-  would attack the cause directly.</li>
-  <li><b>Calibrate the probabilities.</b> Isotonic regression or Platt scaling on a held-out
-  calibration split would make the application's displayed confidences trustworthy. Given the
-  automation-bias risk in §5.3, this is a safety fix, not a cosmetic one.</li>
-  <li><b>Search the hyperparameters properly.</b> An Optuna study over the boosters, scored on
-  <em>balanced</em> accuracy under the grouped protocol, would optimise for the regime that
-  actually matters rather than the saturated one.</li>
-  <li><b>Train on all 1.55&nbsp;M rows</b> with out-of-core or incremental fitting, which would
-  chiefly benefit the rare northern districts and narrow the confidence intervals in §5.3.</li>
-  <li><b>Replace PDP with ALE plots</b>, which condition on the local data distribution and are
-  therefore valid under the feature dependence documented in §4.6.</li>
-  <li><b>Address species classification properly</b> &mdash; which means acquiring a different
-  modality (images or audio with a fine-tuned CNN), or reframing the tabular problem as
-  multi-label checklist prediction or per-species habitat-suitability models, both of which are
-  well-posed where 429-way single-label classification is not.</li>
-</ol>
+flags records for expert review. It is not appropriate as an automated authority on record
+provenance, as a basis for resource allocation between districts without explicit correction
+for sampling bias, or for any inference about threatened-species localities.</p>
 
 <!-- ============================================ 6 -->
-<h2 class="pagebreak">6 &nbsp; Front-End Integration</h2>
+<h2>6 &nbsp; Front-End Integration</h2>
 
-<h3>6.1 &nbsp; The application</h3>
-<p>The trained ensemble is deployed as a five-tab Streamlit application, publicly hosted on
-Streamlit Community Cloud at
-<code>srilanka-bird-diversity-ensemble.streamlit.app</code>, with source at
-<code>github.com/HansikaGunasekara/srilanka-bird-diversity-ensemble</code>.</p>
+<p>The trained ensemble is deployed as a three-tab Streamlit application, publicly hosted on
+Streamlit Community Cloud at <code>srilanka-bird-diversity-ensemble.streamlit.app</code>, with
+source at <code>github.com/HansikaGunasekara/srilanka-bird-diversity-ensemble</code>. A user
+can either load a real observation from the dataset or set all twenty-four features by hand,
+and receives a predicted district with its probability distribution and the SHAP-based
+explanation of what drove it.</p>
 
 <table>
   <tr><th style="width:24%">Tab</th><th>Function</th></tr>
-  <tr><td><b>Predict</b></td><td>Users set all 24 features with sliders seeded from real percentiles, or load a random real observation. Returns the predicted district with a ranked probability distribution over all 25 classes, from every individual model as well as both ensembles &mdash; so a user can watch the members disagree.</td></tr>
-  <tr><td><b>Model comparison</b></td><td>Accuracy, balanced accuracy and macro-F1 for all eight models across all four protocol/feature-set combinations, with the sub-95% case visible rather than hidden.</td></tr>
-  <tr><td><b>Confusion matrix</b></td><td>Interactive 25&times;25 matrix; hovering reveals the count and rate for any true/predicted pair.</td></tr>
-  <tr><td><b>Feature importance</b></td><td>Per-model importance rankings.</td></tr>
-  <tr><td><b>About the data</b></td><td>Dataset provenance, the class-imbalance distribution, and a plain statement of the species-ceiling finding.</td></tr>
+  <tr><td><b>Predict</b></td>
+      <td>Load a real record or set the inputs by hand with sliders seeded from real
+      percentiles. Returns the predicted district, its confidence, the five most likely
+      districts, and how many of the eight models agree &mdash; with each model's own answer
+      one click away.</td></tr>
+  <tr><td><b>How good is it?</b></td>
+      <td>The four protocol/feature-set combinations side by side, including the sub-95% case;
+      the measured train&ndash;test gap that answers the overfitting question; per-model
+      accuracy against the 95% threshold; and the confusion matrix with the weakest
+      districts.</td></tr>
+  <tr><td><b>What it learned</b></td>
+      <td>Global SHAP ranking, per-district top drivers with their direction of effect, and the
+      three-method importance disagreement of &sect;4.3.</td></tr>
 </table>
 
 <figure>
   <img src="01_predict.png" alt="Predict tab">
-  <figcaption><b>Figure 6.</b> The <i>Predict</i> tab: user inputs on the left, the ensemble's
-  ranked district probabilities and each member model's independent opinion on the right.</figcaption>
+  <figcaption><b>Figure 5.</b> The <i>Predict</i> tab: record selection and the collapsed
+  manual inputs on the left; on the right the predicted district, whether it matches the
+  recorded one, and the five most likely districts.</figcaption>
 </figure>
 
-<h3>6.2 &nbsp; Engineering for deployment</h3>
-<p>Two problems had to be solved to get a research model onto a free-tier host.</p>
-
-<p><b>Model size.</b> The study-grade bundle unpickles to roughly 460&nbsp;MB &mdash; ExtraTrees
-alone accounts for 318&nbsp;MB &mdash; which exceeds both GitHub's file-size warning and the free
-tier's memory budget. A compact build (<code>n_estimators=40</code>,
-<code>min_samples_leaf=50</code>) reduces the artefact to <b>23&nbsp;MB</b> on disk and
-<b>92&nbsp;MB</b> resident. Because the boosters carry the ensemble, the cost is nil at the
-ensemble level: the compact build scores <b>0.9995</b> random and <b>0.9925</b> grouped, identical
-to the full build to four decimal places, despite its individual forests being measurably weaker
-(RandomForest 0.9905 vs 0.9984). This is itself an argument for ensembling &mdash; the combination
-is robust to degradation of its weakest members.</p>
-
-<p><b>Latency.</b> Initial single-row prediction took 256&nbsp;ms, making every slider adjustment
-feel sluggish. Profiling isolated the cause as OpenMP thread-pool setup cost, paid per call: 500
-rows predicted in one call took 75&nbsp;ms in total, while one row alone took 225&nbsp;ms. Forcing
-single-threaded execution before NumPy is imported, plus memoising predictions on the feature
-tuple, cut this to <b>54.5&nbsp;ms &mdash; a 4.7&times; improvement</b>.</p>
-
-<p><b>Environment pinning.</b> The initial cloud build failed because the host defaulted to
-Python 3.14, for which <code>scikit-learn</code> 1.6.1, NumPy 1.26 and Pillow had no wheels;
-the fallback source builds failed on a missing <code>zlib</code> header. The build is pinned to
-Python 3.11, where every dependency resolves to a prebuilt wheel. The failure and its resolution
-are documented in the repository README.</p>
+<p>The deployed bundle is a compact build (<code>n_estimators=40, min_samples_leaf=50</code>)
+that fits the free tier's memory budget at <b>23&nbsp;MB</b> on disk, and scores 0.9995 random
+and 0.9925 grouped &mdash; identical to the study-grade build to four decimal places despite its
+individual forests being measurably weaker, which is itself an argument for ensembling. Forcing
+single-threaded execution before NumPy is imported and memoising predictions on the feature tuple
+cut single-row latency from 256&nbsp;ms to <b>54.5&nbsp;ms</b>.</p>
 
 <!-- ============================================ 7 -->
 <h2>7 &nbsp; Conclusion</h2>
 <p>This project applied a stacked heterogeneous ensemble to 1.55&nbsp;million Sri Lankan
 bird-observation records. Its most consequential step was taken before any model was fitted: a
-Bayes-error analysis demonstrated that the assignment's original framing &mdash; 429-way species
-classification &mdash; is capped at 5.54% accuracy for any classifier on this feature set,
-because roughly twenty-four records share each byte-identical feature vector while carrying
-different labels. Re-specifying the task as district provenance, whose ceiling on the same
-features is 100%, produced a well-posed problem that the data can genuinely answer.</p>
+Bayes-error analysis demonstrated that the original 429-way species framing is capped at 5.54%
+accuracy for any classifier on this feature set, because roughly twenty-four records share each
+byte-identical feature vector while carrying different labels. Re-specifying the task as
+district provenance, whose ceiling on the same features is 100%, produced a well-posed problem
+the data can genuinely answer.</p>
 
-<p>The ensemble reaches <b>0.9995</b> accuracy, <b>0.9975</b> balanced accuracy and <b>0.9980</b>
-macro-F1 under the conventional protocol, exceeding the 95% requirement. Three independent guards
-test whether that figure is real; the strictest &mdash; unseen sites with coordinates withheld
-&mdash; yields <b>0.9032</b>, below the threshold, and is reported in full because the gap between
-the two numbers is the most informative result the project produced.</p>
-
-<p>A three-method explainability audit showed the model's learned structure to be
-geographically coherent: it identifies highland districts by elevation and temperature inversion,
-coastal cities by SO<sub>2</sub> and night-time radiance, and inland locations by depleted marine
-aerosol, and it recovers the true coordinates of individual districts to within hundredths of a
-degree. The audit also produced a methodological finding of its own &mdash; three importance
-methods attribute between 39.4% and 97.9% of total importance to the same two features &mdash;
-and the <code>envonly</code> ablation resolves that disagreement in a way no single method could
-have. Two further diagnostic results, the gradient-boosting divergence of §3.3 and the
-partial-dependence artefact of §4.6, were failures that proved more instructive than the
-successes around them.</p>
+<p>The ensemble reaches <b>0.9995</b> accuracy, <b>0.9975</b> balanced accuracy and
+<b>0.9980</b> macro-F1 under the conventional protocol, and that figure was tested rather than
+asserted: a train&ndash;test gap of 0.0005 rules out overfitting, so the score reflects a task
+that is genuinely easy. The binding limitation is transfer instead &mdash; under the strictest
+guard, unseen sites with coordinates withheld, accuracy falls to <b>0.9032</b>, below the 95%
+threshold, and the gap between those two numbers is the most informative result the project
+produced. The explainability audit showed the learned structure to be geographically coherent,
+identifying highland districts by elevation and temperature inversion, coastal cities by
+SO<sub>2</sub> and night-time radiance, and inland locations by depleted marine aerosol, and
+recovering the true coordinates of individual districts to within hundredths of a degree. It also
+produced a methodological finding of its own: three importance methods attribute between 39.4%
+and 97.9% of total importance to the same two features, and only the ablation resolves the
+disagreement. With more time the priorities would be spatial block cross-validation to attack the
+0.9032 gap, probability calibration to make the displayed confidences trustworthy, and ALE plots
+in place of partial dependence.</p>
 
 <h2>References</h2>
 <ol style="font-size:9.3pt">
   <li>Wolpert, D. H. (1992). Stacked generalization. <i>Neural Networks</i>, 5(2), 241&ndash;259.</li>
-  <li>Breiman, L. (1996). Bagging predictors. <i>Machine Learning</i>, 24(2), 123&ndash;140.</li>
   <li>Breiman, L. (2001). Random forests. <i>Machine Learning</i>, 45(1), 5&ndash;32.</li>
   <li>Geurts, P., Ernst, D., &amp; Wehenkel, L. (2006). Extremely randomized trees. <i>Machine Learning</i>, 63(1), 3&ndash;42.</li>
   <li>Friedman, J. H. (2001). Greedy function approximation: a gradient boosting machine. <i>Annals of Statistics</i>, 29(5), 1189&ndash;1232.</li>
   <li>Chen, T., &amp; Guestrin, C. (2016). XGBoost: a scalable tree boosting system. <i>Proceedings of KDD '16</i>, 785&ndash;794.</li>
-  <li>Ke, G., Meng, Q., Finley, T., Wang, T., Chen, W., Ma, W., Ye, Q., &amp; Liu, T.-Y. (2017). LightGBM: a highly efficient gradient boosting decision tree. <i>Advances in Neural Information Processing Systems</i>, 30.</li>
+  <li>Ke, G., Meng, Q., Finley, T., et al. (2017). LightGBM: a highly efficient gradient boosting decision tree. <i>Advances in Neural Information Processing Systems</i>, 30.</li>
   <li>Lundberg, S. M., &amp; Lee, S.-I. (2017). A unified approach to interpreting model predictions. <i>Advances in Neural Information Processing Systems</i>, 30.</li>
-  <li>Lundberg, S. M., Erion, G., Chen, H., et al. (2020). From local explanations to global understanding with explainable AI for trees. <i>Nature Machine Intelligence</i>, 2(1), 56&ndash;67.</li>
   <li>Strobl, C., Boulesteix, A.-L., Zeileis, A., &amp; Hothorn, T. (2007). Bias in random forest variable importance measures. <i>BMC Bioinformatics</i>, 8(25).</li>
   <li>Apley, D. W., &amp; Zhu, J. (2020). Visualizing the effects of predictor variables in black box supervised learning models. <i>JRSS-B</i>, 82(4), 1059&ndash;1086.</li>
   <li>Roberts, D. R., Bahn, V., Ciuti, S., et al. (2017). Cross-validation strategies for data with spatial, temporal, phylogenetic or geographic structure. <i>Ecography</i>, 40(8), 913&ndash;929.</li>
-  <li>Pedregosa, F., et al. (2011). Scikit-learn: machine learning in Python. <i>JMLR</i>, 12, 2825&ndash;2830.</li>
   <li>Chandrasiri, D. (2024). <i>SriLanka-Bird-Diversity-Dataset</i>. Hugging Face Hub.</li>
 </ol>
 
-<h2>Appendix A &nbsp; Reproducing the results</h2>
-<pre style="font-family:'JetBrains Mono',monospace; font-size:8.3pt; background:#F7F6F2;
-  border:1px solid #E6E4DC; border-radius:4px; padding:11px; line-height:1.5; white-space:pre-wrap">python -m venv .venv &amp;&amp; .venv/bin/pip install -r requirements-dev.txt
-
-.venv/bin/python src/download.py                 # fetch the dataset from Hugging Face
-.venv/bin/python src/prep.py                     # engineer features, cache to Parquet
-.venv/bin/python src/ceiling.py                  # reproduce the Bayes-error analysis (§1.5)
-
-# headline run; saves the fitted ensemble                        (~12 min, M2)
-.venv/bin/python src/train.py --sample 300000 --sets full \
-        --protocols random,grouped --save --tag metrics_full
-
-# the no-coordinates guard                                       (~25 min)
-.venv/bin/python src/train.py --sample 300000 --sets envonly \
-        --protocols random,grouped --tag metrics_envonly
-
-# the compact bundle the deployed app serves                     (~20 min)
-.venv/bin/python src/train.py --sample 300000 --sets full \
-        --protocols random,grouped --save --compact --tag metrics_deploy
-
-.venv/bin/python src/explain.py --sample 6000    # SHAP, permutation, PDP (§4)
-.venv/bin/python src/make_app_assets.py          # app assets
-.venv/bin/streamlit run app.py                   # run the front end locally</pre>
-
-<p class="footnote" style="margin-top:14px">All figures in §4 are reproducible from
-<code>src/explain.py</code>; all metrics in §3 from the three <code>src/train.py</code> invocations
-above. Random seeds are fixed at 0 throughout. Figures 1&ndash;5 were generated on 6,000 held-out
-test rows; Figure 6 is a screenshot of the deployed application.</p>
+<p class="footnote" style="margin-top:12px">All metrics in &sect;3 are reproducible from
+<code>src/train.py</code> and all figures in &sect;4 from <code>src/explain.py</code>; the
+exact commands are in the repository README. Random seeds are fixed at 0 throughout. Figures
+1&ndash;4 were generated on 6,000 held-out test rows; Figure 5 is a screenshot of the deployed
+application.</p>
 
 </body>
 </html>

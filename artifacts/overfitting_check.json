@@ -1,0 +1,53 @@
+{
+  "split": {
+    "n_train": 225000,
+    "n_test": 75000,
+    "sample": 300000,
+    "seed": 0,
+    "protocol": "random",
+    "feature_set": "deploy"
+  },
+  "note": "Stacking's train figure feeds the meta-learner the base models' in-sample probabilities, which are more confident than the out-of-fold probabilities it was fitted on; read it as an upper bound on its train-side optimism.",
+  "results": {
+    "RandomForest": {
+      "train": 0.9912355555555555,
+      "test": 0.9904933333333333,
+      "gap": 0.0007422222222221997
+    },
+    "ExtraTrees": {
+      "train": 0.9654888888888888,
+      "test": 0.9638666666666666,
+      "gap": 0.0016222222222221916
+    },
+    "HistGradientBoosting": {
+      "train": 0.9999333333333333,
+      "test": 0.99936,
+      "gap": 0.0005733333333333146
+    },
+    "XGBoost": {
+      "train": 1.0,
+      "test": 0.9994666666666666,
+      "gap": 0.0005333333333333856
+    },
+    "LightGBM": {
+      "train": 0.9995822222222223,
+      "test": 0.9990266666666666,
+      "gap": 0.0005555555555556424
+    },
+    "LogisticRegression": {
+      "train": 0.9667777777777777,
+      "test": 0.96612,
+      "gap": 0.0006577777777777571
+    },
+    "SoftVote": {
+      "train": 0.9999111111111111,
+      "test": 0.9994533333333333,
+      "gap": 0.00045777777777777917
+    },
+    "Stacking": {
+      "train": 0.9999777777777777,
+      "test": 0.9995066666666667,
+      "gap": 0.00047111111111108883
+    }
+  }
+}
