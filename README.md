@@ -4,8 +4,7 @@ Multi-class classification on the Hugging Face dataset
 [`DilushaChandrasiri/SriLanka-Bird-Diversity-Dataset`](https://huggingface.co/datasets/DilushaChandrasiri/SriLanka-Bird-Diversity-Dataset)
 (1,552,048 GBIF bird occurrence records · 429 species · 25 provinces · 2014–2024 · CC-BY-4.0).
 
-**Headline result: 99.95% accuracy** (6-model ensemble, 25-class target, stratified
-random split) — and **99.25% when every test site is unseen during training**.
+
 
 **Live app:** <https://srilanka-bird-diversity-ensemble.streamlit.app>
 
@@ -14,7 +13,7 @@ random split) — and **99.25% when every test site is unseen during training**.
 
 ---
 
-## ⚠️ Read this first: the target is `stateProvince`, not species
+## ⚠️ the target is `stateProvince`, not species
 
 The assignment asked for species classification at >95%. **That is provably
 impossible on this dataset**, and the proof is cheap to reproduce:
@@ -69,50 +68,6 @@ deployed bundle refits RandomForest and ExtraTrees with fewer, shallower trees
 (`n_estimators=40, min_samples_leaf=50`), which costs those two learners some
 accuracy but **costs the ensemble nothing**, because the boosters carry it:
 
-| | study build | deployed build |
-|---|---|---|
-| RandomForest | 0.9984 | 0.9905 |
-| ExtraTrees | 0.9933 | 0.9639 |
-| **Stacking · random** | **0.9995** | **0.9995** |
-| **Stacking · grouped** | **0.9925** | **0.9925** |
-| bundle on disk | 67 MB | **23 MB** |
-| unpickled trees in RAM | 460 MB | **92 MB** |
-
-Only the compact bundle is committed; `artifacts/ensemble_full.joblib` is
-gitignored and rebuilt with the commands below. Both sets of numbers are in the
-app's *How good is it?* tab, so nothing is hidden by the swap.
-
-`full` = all 24 features. `envonly` = latitude and longitude **dropped**.
-`random` = stratified row split. `grouped` = `GroupShuffleSplit` on (lat, lon),
-so every test site is absent from training.
-
-### Is the 99.95% real, or just memorised coordinates?
-
-Province correlates strongly with latitude/longitude, so that question is fair.
-Three independent guards:
-
-1. **Unseen sites** (`full · grouped`) — **99.25%**. Coordinates in the test set
-   were never trained on, so the score is not site lookup.
-2. **No coordinates at all** (`envonly · random`) — **99.71%** from climate,
-   habitat and air-quality variables only.
-3. **Both at once** (`envonly · grouped`) — **90.32%**, the only configuration
-   that falls below 95%, and it is reported rather than buried.
-
-Guard 3 is the informative one: the gap between `envonly · random` (99.71%) and
-`envonly · grouped` (90.32%) shows that part of the random-split score comes from
-recognising a *site's environmental fingerprint* — those columns are constant per
-site — rather than from generalisable climate structure. The honest reading is
-that **~90% is the floor for a genuinely unseen Sri Lankan location with no
-coordinates**, while the conventional protocol that assignments are graded on
-gives **99.95%**.
-
-### Is 99.95% overfitting?
-
-No, and it is worth answering with a measurement rather than an argument.
-Overfitting has a specific signature — high accuracy on data the model has *seen*,
-materially lower accuracy on data it has not. `src/overfit_check.py` measures both
-sides on the exact split `train.py` used and writes
-`artifacts/overfitting_check.json`:
 
 | model | train | test | gap |
 |---|---|---|---|
